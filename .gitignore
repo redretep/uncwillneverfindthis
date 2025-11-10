@@ -1,0 +1,9 @@
+# Screenshots directory
+screenshots/
+
+# Node modules
+node_modules/
+
+# System files
+.DS_Store
+Thumbs.db
