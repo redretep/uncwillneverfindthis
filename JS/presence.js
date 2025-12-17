@@ -137,37 +137,23 @@
             })
             .map(([key, user]) => user);
           
-          // Group sessions by IP address
-          const usersByIP = {};
-          otherSessions.forEach(session => {
-            const ip = session.ip || 'unknown';
-            if (!usersByIP[ip]) {
-              usersByIP[ip] = [];
-            }
-            usersByIP[ip].push(session);
-          });
-          
-          if (Object.keys(usersByIP).length === 0) {
+          if (otherSessions.length === 0) {
             usersList.innerHTML = '<div style="color: #999999; font-size: 0.875rem;">no other users online</div>';
             return;
           }
           
-          usersList.innerHTML = Object.entries(usersByIP).map(([ip, sessions], idx) => {
-            // Show all unique locations for this user (deduplicated)
-            const uniqueLocations = [...new Set(sessions.map(s => s.displayLocation || 'browsing'))];
-            const locations = uniqueLocations.join(', ');
-            // Get first game icon if any session has a game
-            const gameSession = sessions.find(s => s.gameId);
-            const gameIcon = gameSession ? `<img src="/projects/${gameSession.gameId}/thumb.png" alt="" style="width: 24px; height: 24px; border-radius: 4px; object-fit: cover; margin-right: 8px;">` : '';
-            const tabCount = sessions.length > 1 ? ` (${sessions.length} tabs)` : '';
+          usersList.innerHTML = otherSessions.map((session, idx) => {
+            const location = session.displayLocation || 'browsing';
+            const ip = session.ip || 'unknown';
+            const gameIcon = session.gameId ? `<img src="/projects/${session.gameId}/thumb.png" alt="" style="width: 24px; height: 24px; border-radius: 4px; object-fit: cover; margin-right: 8px;">` : '';
             
             return `
               <div style="background: #1a1a1a; padding: 12px; border-radius: 8px; font-size: 0.875rem; border-left: 3px solid #2ecc71; display: flex; align-items: flex-start; gap: 8px;">
                 ${gameIcon}
                 <div style="flex: 1;">
-                  <div><strong>user ${idx + 1}${tabCount}</strong></div>
+                  <div><strong>user ${idx + 1}</strong></div>
                   <div style="color: #999999; margin-top: 4px;">ip: ${ip}</div>
-                  <div style="color: #999999;">location: ${locations}</div>
+                  <div style="color: #999999;">location: ${location}</div>
                 </div>
               </div>
             `;
