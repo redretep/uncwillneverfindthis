@@ -365,6 +365,13 @@
         <label>thumbnail path</label>
         <input type="text" id="game-thumb" placeholder="e.g., projects/slope/slope4.jpeg" />
       </div>
+      <div class="form-group">
+        <label>section</label>
+        <select id="game-section" style="width: 100%; padding: 12px; background: #000000; border: 1px solid #1a1a1a; border-radius: 6px; color: #ffffff; font-size: 1rem;">
+          <option value="all">all games</option>
+          <option value="papas">papa's games</option>
+        </select>
+      </div>
       <div class="form-actions">
         <button class="btn-primary" onclick="addGame()">add game</button>
         <button class="btn-secondary" onclick="closeAddGameModal()">cancel</button>
@@ -518,10 +525,11 @@ async function addGame() {
   const name = document.getElementById('game-name').value.trim();
   const path = document.getElementById('game-path').value.trim();
   const thumb = document.getElementById('game-thumb').value.trim();
+  const section = document.getElementById('game-section').value || 'all';
   
   if (name && path && thumb) {
     try {
-      await gamesManager.addGame({ name, path, thumb, trending: false });
+      await gamesManager.addGame({ name, path, thumb, section, trending: false });
       closeAddGameModal();
       alert('game added successfully!');
     } catch (error) {

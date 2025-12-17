@@ -49,6 +49,7 @@ class GamesManager {
       name: game.name,
       path: game.path,
       thumb: game.thumb,
+      section: game.section || 'all',
       trending: game.trending || false,
       plays: Number(game.plays) || 0,
       createdAt: Date.now()
@@ -111,6 +112,7 @@ class GamesManager {
           name: game.name,
           path: game.path,
           thumb: game.thumb,
+          section: game.section || 'all',
           trending: game.trending || false,
           plays: game.plays || 0,
           createdAt: Date.now()

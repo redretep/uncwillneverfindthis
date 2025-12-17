@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Desmos | Graphing Calculator</title>
 <link rel="stylesheet" href="styles.css">
-<link rel="icon" href="desmos.png" type="image/x-icon">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
 <meta name="description" content="labubu">
 <!-- analyticsssss -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F08N1KVKEF"></script>
@@ -34,11 +34,9 @@
             <div class="search-results" id="search-results"></div>
         </div>
         <div class="topnav-right">
-            <select id="theme-dropdown" class="theme-dropdown" title="select theme">
-                <option value="dark">dark</option>
-                <option value="light">light</option>
-                <option value="pride">pride</option>
-            </select>
+            <button id="theme-toggle" class="theme-toggle" title="toggle theme" aria-label="toggle theme">
+                <span class="theme-icon">🌙</span>
+            </button>
             <a href="https://forms.gle/eRT37jLokfETBNUs6">request</a>
             <a href="#" id="changelog-btn">changelog</a>
             <span id="last-updated">last updated: loading…</span>
@@ -53,10 +51,10 @@
     <h1 class="title">druskii128</h1>
         <p style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 0; font-weight: 400; max-width: 600px;">druskii is so gnarly -s</p>
         <div class="presence-indicator" id="presence-indicator" style="margin-top: 12px; display: flex; align-items: center; gap: 8px; color: var(--text-secondary);">
-            <span class="presence-dot" aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #2ecc71; display: inline-block;"></span>
+            <span class="presence-dot" aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: var(--color-online); display: inline-block;"></span>
             <span class="presence-icon" aria-hidden="true">👤</span>
             <span id="online-count">0 online</span>
-            <span id="ingame-count" style="margin-left: 8px; color: #7bd7a6;">0 in game</span>
+            <span id="ingame-count" style="margin-left: 8px; color: var(--color-in-game);">0 in game</span>
             <button id="online-info-btn" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.875rem; padding: 0 4px; margin-left: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; opacity: 0.6;" title="view other users">more</button>
         </div>
   </div>
@@ -456,19 +454,11 @@
 
   </div>
 		
-  <h2 id="saras-cooking-class" class="text-center">👩‍🍳 sara's cooking class</h2>
-				
-  <div class="flex-container">
-
-          <a href="projects/gingerbread-house/index.html" class="game-link container">
-              <div class="game-tile">
-                  <img class="game-icon" src="projects/gingerbread-house/thumb.png" alt="icon" width="360" height="360" />
-                  <h1 class="game-title">[coming soon] gingerbread house</h1>
-              </div>
-          </a>
-		
-
-  </div>
+        <h2 id="papas-games" class="text-center">papa's games</h2>
+                
+    <div id="papas-games-container" class="flex-container">
+        <!-- Papa's games loaded from Firebase -->
+    </div>
 </main>
 
 <!-- Changelog Modal -->
@@ -550,8 +540,13 @@ if (typeof gamesManager !== 'undefined') {
   
   gamesManager.addListener((allGames, trendingGames) => {
     console.log('Games updated - Trending:', trendingGames.length, 'All:', allGames.length);
-    renderTrendingGames(trendingGames);
-    renderAllGames(allGames);
+        // Filter by section
+        const allSectionGames = allGames.filter(g => (g.section || 'all') === 'all');
+        const papasSectionGames = allGames.filter(g => (g.section || 'all') === 'papas');
+
+        renderTrendingGames(trendingGames);
+        renderAllGames(allSectionGames);
+        renderPapasGames(papasSectionGames);
   });
 }
 
@@ -636,6 +631,29 @@ function renderAllGames(games) {
     
     container.appendChild(gameLink);
   });
+}
+
+function renderPapasGames(games) {
+    const container = document.getElementById('papas-games-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const sortedGames = [...games].sort((a, b) => a.name.localeCompare(b.name));
+
+    sortedGames.forEach(game => {
+        const gameLink = document.createElement('a');
+        gameLink.href = game.path;
+        gameLink.className = 'game-link container';
+
+        gameLink.innerHTML = `
+            <div class="game-tile">
+                <img class="game-icon" src="${game.thumb}" alt="${game.name}" width="360" height="360">
+                <h1 class="game-title">${game.name}</h1>
+            </div>
+        `;
+
+        container.appendChild(gameLink);
+    });
 }
 </script>
 </body>

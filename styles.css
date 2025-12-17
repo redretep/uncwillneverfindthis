@@ -158,35 +158,39 @@ header {
 }
 
 /* Theme Dropdown Styling */
-.theme-dropdown {
+.theme-toggle {
   background: var(--bg-card);
   color: var(--text-primary);
   border: 1px solid var(--bg-elevated);
   border-radius: 8px;
   padding: 8px 12px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 1.25rem;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
   outline: none;
-  text-transform: lowercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
 }
 
-.theme-dropdown:hover {
+.theme-toggle:hover {
   background: var(--bg-elevated);
   border-color: var(--primary);
+  transform: scale(1.05);
 }
 
-.theme-dropdown:focus {
+.theme-toggle:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 2px var(--bg-elevated);
 }
 
-.theme-dropdown option {
-  background: var(--bg-card);
-  color: var(--text-primary);
-  padding: 8px;
+.theme-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .title {
@@ -451,7 +455,7 @@ main {
   width: 100%;
   height: 100%;
   border-radius: 8px;
-  background: #0a0a0a;
+  background: var(--bg-card);
   padding: 0;
   text-align: center;
   transition: all 0.2s ease;
@@ -459,7 +463,7 @@ main {
   overflow: hidden;
   cursor: pointer;
   box-shadow: none;
-  border: 1px solid #1a1a1a;
+  border: 1px solid var(--bg-elevated);
   display: flex;
   flex-direction: column;
 }
@@ -495,9 +499,9 @@ main {
 
 .game-tile:hover, .game-tile-popular:hover {
   transform: translateY(-4px);
-  box-shadow: 0 0 0 2px #ffffff;
-  border-color: #ffffff;
-  background: #1a1a1a;
+  box-shadow: 0 0 0 2px var(--primary);
+  border-color: var(--primary);
+  background: var(--bg-elevated);
 }
 
 .game-icon {
@@ -509,7 +513,7 @@ main {
   position: relative;
   z-index: 2;
   object-fit: cover;
-  border-bottom: 1px solid #1a1a1a;
+  border-bottom: 1px solid var(--bg-elevated);
 }
 
 .game-tile:hover .game-icon,
@@ -594,10 +598,6 @@ h2.text-center {
 
 h2.text-center::before {
   content: none;
-}
-
-a.active {
-  color: #FFFFFF !important;
 }
 
 a.active::before {
@@ -805,16 +805,16 @@ a.active::before {
   display: flex;
   gap: 20px;
   padding: 16px;
-  background: #0a0a0a;
+  background: var(--bg-card);
   border-radius: 4px;
   margin-bottom: 12px;
   transition: all 0.2s ease;
-  border: 1px solid #1a1a1a;
+  border: 1px solid var(--bg-elevated);
 }
 
 .changelog-item:hover {
-  background: #1a1a1a;
-  border-color: #ffffff;
+  background: var(--bg-elevated);
+  border-color: var(--primary);
   transform: translateX(2px);
 }
 
@@ -988,7 +988,7 @@ a.active::before {
   right: 12px;
   background: none;
   border: none;
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: 1.5rem;
   cursor: pointer;
   opacity: 0.7;
@@ -1013,23 +1013,35 @@ a.active::before {
 }
 
 .user-card {
-  background: #1a1a1a;
+  background: var(--bg-card);
   padding: 12px;
   border-radius: 8px;
   font-size: 0.875rem;
-  border-left: 3px solid #2ecc71;
+  border-left: 3px solid var(--color-online);
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .user-card strong {
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .user-card .user-ip {
-  color: #999999;
+  color: var(--text-secondary);
   margin-top: 4px;
 }
 
 .user-card .user-location {
-  color: #999999;
+  color: var(--text-secondary);
   margin-top: 2px;
+}
+
+.user-game-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--bg-elevated);
 }

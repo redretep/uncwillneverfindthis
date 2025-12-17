@@ -166,26 +166,32 @@
             return;
           }
           
+          console.log('Games map:', gamesMap);
+          console.log('Other sessions:', otherSessions);
+          
           usersList.innerHTML = otherSessions.map((session, idx) => {
             const location = session.displayLocation || 'browsing';
             const ip = session.ip || 'unknown';
             
-            // Get the correct game thumb from the games database
-            let gameIcon = '';
+            // Generate game thumbnail bubble for right side
+            let gameThumb = '';
             if (session.gameId && gamesMap[session.gameId]) {
               const game = gamesMap[session.gameId];
               const thumbPath = game.thumb || `/projects/${session.gameId}/thumb.png`;
-              gameIcon = `<img src="${thumbPath}" alt="" style="width: 24px; height: 24px; border-radius: 4px; object-fit: cover; margin-right: 8px;">`;
+              console.log(`User ${idx + 1} - gameId: ${session.gameId}, thumbPath: ${thumbPath}`);
+              gameThumb = `<img src="${thumbPath}" alt="${location}" class="user-game-thumb" onerror="console.error('Failed to load:', this.src)">`;
+            } else if (session.gameId) {
+              console.warn(`No game found for gameId: ${session.gameId}`);
             }
             
             return `
-              <div style="background: #1a1a1a; padding: 12px; border-radius: 8px; font-size: 0.875rem; border-left: 3px solid #2ecc71; display: flex; align-items: flex-start; gap: 8px;">
-                ${gameIcon}
+              <div class="user-card">
                 <div style="flex: 1;">
                   <div><strong>user ${idx + 1}</strong></div>
-                  <div style="color: #999999; margin-top: 4px;">ip: ${ip}</div>
-                  <div style="color: #999999;">location: ${location}</div>
+                  <div class="user-ip">ip: ${ip}</div>
+                  <div class="user-location">location: ${location}</div>
                 </div>
+                ${gameThumb}
               </div>
             `;
           }).join('');

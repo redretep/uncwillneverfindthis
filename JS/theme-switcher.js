@@ -47,63 +47,54 @@ function applyTheme(themeId) {
   root.style.setProperty('--bg-search-bar-focus', theme.colors.bgSearchBarFocus);
   root.style.setProperty('--border-search-bar', theme.colors.borderSearchBar);
   
-  // Handle background image for Pride theme
-  const body = document.body;
-  if (themeId === 'pride') {
-    body.style.backgroundImage = 'url("bgpride.png")';
-    body.style.backgroundSize = 'cover';
-    body.style.backgroundPosition = 'center';
-    body.style.backgroundRepeat = 'no-repeat';
-    body.style.backgroundAttachment = 'fixed';
-  } else {
-    body.style.backgroundImage = 'none';
-    body.style.backgroundSize = '';
-    body.style.backgroundPosition = '';
-    body.style.backgroundRepeat = '';
-    body.style.backgroundAttachment = '';
-  }
+  // Status colors
+  root.style.setProperty('--color-in-game', theme.colors.colorInGame);
+  root.style.setProperty('--color-online', theme.colors.colorOnline);
   
-  // Update dropdown to show current selection
-  const dropdown = document.getElementById('theme-dropdown');
-  if (dropdown) {
-    dropdown.value = themeId;
+  // Update theme toggle icon
+  const themeToggle = document.getElementById('theme-toggle');
+  const themeIcon = themeToggle?.querySelector('.theme-icon');
+  if (themeIcon) {
+    themeIcon.textContent = themeId === 'dark' ? '🌙' : '☀️';
   }
   
   // Save theme preference to localStorage
   localStorage.setItem('selectedTheme', themeId);
 }
 
+// Toggle between dark and light themes
+function toggleTheme() {
+  const currentTheme = localStorage.getItem('selectedTheme') || DEFAULT_THEME;
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(newTheme);
+}
+
 // Initialize theme on page load
 function initializeTheme() {
   // Check for saved theme preference
   const savedTheme = localStorage.getItem('selectedTheme');
-  const themeToApply = savedTheme || DEFAULT_THEME;
+  // Default to dark if no saved theme or if it was 'pride'
+  const themeToApply = (savedTheme === 'dark' || savedTheme === 'light') ? savedTheme : DEFAULT_THEME;
   
   applyTheme(themeToApply);
 }
 
-// Set up theme dropdown
-function setupThemeDropdown() {
-  const dropdown = document.getElementById('theme-dropdown');
-  if (!dropdown) return;
+// Set up theme toggle button
+function setupThemeToggle() {
+  const themeToggle = document.getElementById('theme-toggle');
+  if (!themeToggle) return;
   
-  // Set current theme as selected
-  const currentTheme = localStorage.getItem('selectedTheme') || DEFAULT_THEME;
-  dropdown.value = currentTheme;
-  
-  // Add change event listener
-  dropdown.addEventListener('change', (e) => {
-    applyTheme(e.target.value);
-  });
+  // Add click event listener
+  themeToggle.addEventListener('click', toggleTheme);
 }
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
-    setupThemeDropdown();
+    setupThemeToggle();
   });
 } else {
   initializeTheme();
-  setupThemeDropdown();
+  setupThemeToggle();
 }

@@ -81,7 +81,11 @@ const themes = [
       // Search bar colors
       bgSearchBar: '#0a0a0a',
       bgSearchBarFocus: '#0a0a0a',
-      borderSearchBar: '#1a1a1a'
+      borderSearchBar: '#1a1a1a',
+      
+      // Status colors
+      colorInGame: '#7bd7a6',
+      colorOnline: '#2ecc71'
     }
   },
   {
@@ -120,7 +124,11 @@ const themes = [
       // Search bar colors
       bgSearchBar: '#f5f5f5',
       bgSearchBarFocus: '#ffffff',
-      borderSearchBar: '#e5e5e5'
+      borderSearchBar: '#e5e5e5',
+      
+      // Status colors
+      colorInGame: '#15803d',
+      colorOnline: '#16a34a'
     }
   },
   {
@@ -159,7 +167,11 @@ const themes = [
       // Search bar colors
       bgSearchBar: '#2D1B4D',
       bgSearchBarFocus: '#3E2A61',
-      borderSearchBar: '#2497D4'
+      borderSearchBar: '#2497D4',
+      
+      // Status colors
+      colorInGame: '#7bd7a6',
+      colorOnline: '#2ecc71'
     }
   }
 ];
