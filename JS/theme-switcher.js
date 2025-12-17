@@ -19,12 +19,28 @@ function applyTheme(themeId) {
   root.style.setProperty('--secondary', theme.colors.secondary);
   root.style.setProperty('--accent', theme.colors.accent);
   root.style.setProperty('--success', theme.colors.success);
+  
+  // Background colors
   root.style.setProperty('--bg-dark', theme.colors.bgDark);
   root.style.setProperty('--bg-card', theme.colors.bgCard);
   root.style.setProperty('--bg-elevated', theme.colors.bgElevated);
+  root.style.setProperty('--bg-topbar', theme.colors.bgTopbar);
+  root.style.setProperty('--bg-modal', theme.colors.bgModal);
+  root.style.setProperty('--bg-modal-header', theme.colors.bgModalHeader);
+  
+  // Text colors
   root.style.setProperty('--text-primary', theme.colors.textPrimary);
   root.style.setProperty('--text-secondary', theme.colors.textSecondary);
   root.style.setProperty('--text-muted', theme.colors.textMuted);
+  root.style.setProperty('--text-topbar', theme.colors.textTopbar);
+  root.style.setProperty('--text-title', theme.colors.textTitle);
+  root.style.setProperty('--text-game-card', theme.colors.textGameCard);
+  root.style.setProperty('--text-modal', theme.colors.textModal);
+  root.style.setProperty('--text-modal-header', theme.colors.textModalHeader);
+  
+  // Border colors
+  root.style.setProperty('--border-modal', theme.colors.borderModal);
+  root.style.setProperty('--border-topbar', theme.colors.borderTopbar);
   
   // Update dropdown to show current selection
   const dropdown = document.getElementById('theme-dropdown');

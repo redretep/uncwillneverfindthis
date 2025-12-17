@@ -18,9 +18,19 @@
   --bg-dark: #000000;
   --bg-card: #0a0a0a;
   --bg-elevated: #1a1a1a;
+  --bg-topbar: #000000;
+  --bg-modal: #000000;
+  --bg-modal-header: #0a0a0a;
   --text-primary: #ffffff;
   --text-secondary: #999999;
   --text-muted: #666666;
+  --text-topbar: #999999;
+  --text-title: #ffffff;
+  --text-game-card: #ffffff;
+  --text-modal: #999999;
+  --text-modal-header: #ffffff;
+  --border-modal: #333333;
+  --border-topbar: #1a1a1a;
 }
 
 body {
@@ -71,9 +81,9 @@ body {
 .game-link:nth-child(5) { animation-delay: 0.17s; }
 
 header {
-  background: var(--bg-dark);
+  background: var(--bg-topbar);
   backdrop-filter: none;
-  border-bottom: 1px solid var(--bg-elevated);
+  border-bottom: 1px solid var(--border-topbar);
   box-shadow: none;
   position: sticky;
   top: 0;
@@ -102,7 +112,7 @@ header {
 }
 
 .topnav a {
-  color: var(--text-secondary);
+  color: var(--text-topbar);
   text-decoration: none;
   font-weight: 500;
   font-size: 0.875rem;
@@ -180,7 +190,7 @@ header {
   font-size: 4rem;
   margin: 60px 0 16px;
   text-align: left;
-  color: #ffffff;
+  color: var(--text-title);
   font-family: 'Space Grotesk', sans-serif;
   animation: fadeInUp 0.6s ease-out;
   font-weight: 700;
@@ -510,7 +520,7 @@ main {
 }
 
 .game-title {
-  color: var(--text-primary);
+  color: var(--text-game-card);
   font-size: 0.875rem;
   padding: 14px 10px;
   transition: all 0.2s ease;
@@ -549,7 +559,7 @@ main {
 }
 
 .game-tile-popular .game-title {
-  color: var(--text-primary);
+  color: var(--text-game-card);
   font-weight: 600;
   font-size: 0.9375rem;
 }
@@ -687,14 +697,14 @@ a.active::before {
 }
 
 .modal-content {
-  background: #0a0a0a;
+  background: var(--bg-modal);
   margin: 5% auto;
   padding: 0;
-  border: 1px solid #1a1a1a;
+  border: 1px solid var(--border-modal);
   border-radius: 8px;
   width: 90%;
   max-width: 800px;
-  box-shadow: 0 0 0 1px #1a1a1a;
+  box-shadow: 0 0 0 1px var(--border-modal);
   animation: slideInModal 0.4s ease-out;
   max-height: 85vh;
   display: flex;
@@ -714,7 +724,7 @@ a.active::before {
 
 .modal-header {
   padding: 20px 24px;
-  background: var(--bg-card);
+  background: var(--bg-modal-header);
   border-bottom: 1px solid var(--bg-elevated);
   border-radius: 12px 12px 0 0;
   display: flex;
@@ -726,7 +736,7 @@ a.active::before {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-modal-header);
   font-family: 'Space Grotesk', sans-serif;
   letter-spacing: -0.02em;
 }
@@ -958,8 +968,8 @@ a.active::before {
 }
 
 .modal-content {
-  background: #000000;
-  border: 1px solid #333333;
+  background: var(--bg-modal);
+  border: 1px solid var(--border-modal);
   border-radius: 12px;
   max-width: 500px;
   width: 90%;
@@ -990,7 +1000,7 @@ a.active::before {
   font-size: 1.25rem;
   font-weight: bold;
   margin-bottom: 16px;
-  color: #ffffff;
+  color: var(--text-modal-header);
 }
 
 #users-list {

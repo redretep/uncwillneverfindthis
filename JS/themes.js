@@ -19,12 +19,25 @@
  * secondary: Secondary accent color
  * accent: Additional accent color
  * success: Success/positive color
+ * 
  * bgDark: Main background color
  * bgCard: Card/container background color
  * bgElevated: Elevated element background color (hover states, modals)
+ * bgTopbar: Top navigation bar background
+ * bgModal: Modal/dialog background
+ * bgModalHeader: Modal header background
+ * 
  * textPrimary: Primary text color
  * textSecondary: Secondary text color (less emphasis)
  * textMuted: Muted text color (least emphasis)
+ * textTopbar: Top navigation bar text color
+ * textTitle: Main title text color
+ * textGameCard: Game card title text color
+ * textModal: Modal content text color
+ * textModalHeader: Modal header text color
+ * 
+ * borderModal: Modal border color
+ * borderTopbar: Top navigation bar border color
  */
 
 const themes = [
@@ -43,11 +56,23 @@ const themes = [
       bgDark: '#000000',
       bgCard: '#0a0a0a',
       bgElevated: '#1a1a1a',
+      bgTopbar: '#000000',
+      bgModal: '#000000',
+      bgModalHeader: '#0a0a0a',
       
       // Text colors
       textPrimary: '#ffffff',
       textSecondary: '#999999',
-      textMuted: '#666666'
+      textMuted: '#666666',
+      textTopbar: '#999999',
+      textTitle: '#ffffff',
+      textGameCard: '#ffffff',
+      textModal: '#999999',
+      textModalHeader: '#ffffff',
+      
+      // Border colors
+      borderModal: '#333333',
+      borderTopbar: '#1a1a1a'
     }
   },
   {
@@ -65,11 +90,23 @@ const themes = [
       bgDark: '#ffffff',
       bgCard: '#f5f5f5',
       bgElevated: '#e5e5e5',
+      bgTopbar: '#ffffff',
+      bgModal: '#ffffff',
+      bgModalHeader: '#f5f5f5',
       
       // Text colors
       textPrimary: '#000000',
       textSecondary: '#666666',
-      textMuted: '#999999'
+      textMuted: '#999999',
+      textTopbar: '#666666',
+      textTitle: '#000000',
+      textGameCard: '#000000',
+      textModal: '#666666',
+      textModalHeader: '#000000',
+      
+      // Border colors
+      borderModal: '#cccccc',
+      borderTopbar: '#e5e5e5'
     }
   },
   {
@@ -87,11 +124,23 @@ const themes = [
       bgDark: '#2d3561',
       bgCard: '#3d4575',
       bgElevated: '#4d5585',
+      bgTopbar: '#1a1f3a',
+      bgModal: '#1a1f3a',
+      bgModalHeader: '#252a4a',
       
       // Text colors
       textPrimary: '#f7fff7',
       textSecondary: '#a8dadc',
-      textMuted: '#6c757d'
+      textMuted: '#6c757d',
+      textTopbar: '#a8dadc',
+      textTitle: '#ffe66d',
+      textGameCard: '#f7fff7',
+      textModal: '#a8dadc',
+      textModalHeader: '#ffe66d',
+      
+      // Border colors
+      borderModal: '#4ecdc4',
+      borderTopbar: '#4d5585'
     }
   }
 ];
