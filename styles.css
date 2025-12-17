@@ -94,8 +94,8 @@ header {
 
 .topnav {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 24px;
   padding: 20px 48px;
   max-width: 1400px;
   margin: 0 auto;
@@ -141,6 +141,7 @@ header {
   color: var(--text-muted);
   font-size: 0.8125rem;
   font-weight: 400;
+  flex-shrink: 0;
 }
 
 .title {
@@ -197,6 +198,58 @@ main {
   background: #0a0a0a;
   box-shadow: 0 0 0 2px #ffffff;
   border-color: #ffffff;
+}
+
+/* search in topbar */
+.topnav .search-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: auto;
+  max-width: 480px;
+  background: var(--bg-card);
+  border: 1px solid var(--bg-elevated);
+  border-radius: 10px;
+  z-index: 1000;
+}
+.topnav .search-inline .search-box {
+  width: 100%;
+  max-width: none;
+  min-width: 160px;
+  margin: 0;
+  padding: 10px 36px 10px 14px;
+  border-radius: 10px;
+}
+.topnav .search-inline .clear-search {
+  position: static;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2rem;
+    margin: 24px 0 12px;
+  }
+  .topnav {
+    padding: 14px 16px;
+    gap: 8px;
+  }
+  .topnav a {
+    margin-right: 16px;
+  }
+  .topnav .search-inline {
+    flex: 1;
+  }
+  .topnav .search-inline .search-box {
+    width: 100%;
+    max-width: none;
+    min-width: 120px;
+  }
 }
 
 .clear-search {
@@ -441,8 +494,8 @@ main {
 
 .play-counter {
   position: absolute;
-  bottom: 8px;
-  left: 8px;
+  top: 8px;
+  right: 8px;
   display: flex;
   align-items: center;
   gap: 4px;

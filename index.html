@@ -27,29 +27,32 @@
 
 <header class="menubar">
   <nav class="topnav">
-    <a class="active" href="index.html">home</a>
-    <div class="topnav-right">
-      <a href="https://forms.gle/eRT37jLokfETBNUs6">request</a>
-      <a href="#" id="changelog-btn">changelog</a>
-      <span>last updated: 12/16/25 8:30 pm cst</span>
-    </div>
+        <a class="active" href="index.html">home</a>
+        <div class="search-inline">
+            <input class="search-box" id="search-box" type="search" onkeyup="searching(this)" onfocus="fun(this)" placeholder="search...">
+            <button class="clear-search" id="clear-search" onclick="clearSearch()" title="clear search" style="display:none">×</button>
+            <div class="search-results" id="search-results"></div>
+        </div>
+        <div class="topnav-right">
+            <a href="https://forms.gle/eRT37jLokfETBNUs6">request</a>
+            <a href="#" id="changelog-btn">changelog</a>
+            <span id="last-updated">last updated: loading…</span>
+        </div>
   </nav>
 </header>
 
 <main>
-  <nav>
-    <div class="nav-container">
-      <div class="search-container">
-        <input class="search-box" id="search-box" type="search" onkeyup="searching(this)" onfocus="fun(this)" placeholder="search...">
-        <button class="clear-search" id="clear-search" onclick="clearSearch()" title="clear search">×</button>
-        <div class="search-results" id="search-results"></div>
-      </div>
-    </div>
-  </nav>
+    <!-- search moved to topbar -->
 
   <div class="hero-section">
     <h1 class="title">druskii128</h1>
-    <p style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 0; font-weight: 400; max-width: 600px;">conner was here :)</p>
+        <p style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 0; font-weight: 400; max-width: 600px;">conner was here :)</p>
+        <div class="presence-indicator" id="presence-indicator" style="margin-top: 12px; display: flex; align-items: center; gap: 8px; color: var(--text-secondary);">
+            <span class="presence-dot" aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: #2ecc71; display: inline-block;"></span>
+            <span class="presence-icon" aria-hidden="true">👤</span>
+            <span id="online-count">0 online</span>
+            <span id="ingame-count" style="margin-left: 8px; color: #7bd7a6;">0 in game</span>
+        </div>
   </div>
   
   <h2 class="text-center">trending games</h2>
@@ -506,6 +509,52 @@
 <script src="JS/search.js"></script>
 <script src="JS/size.js"></script>
 <script src="JS/changelog.js"></script>
+<script src="JS/presence.js"></script>
+<script>
+// Fetch most recent commit and display in GMT-6
+(function(){
+    const el = document.getElementById('last-updated');
+    if (!el) return;
+    // Adjust owner/repo if different
+    const owner = 'druskii64';
+    const repo = 'druskii64.github.io';
+    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/commits?per_page=1`;
+    fetch(apiUrl)
+        .then(r => r.json())
+        .then(data => {
+            const commit = Array.isArray(data) && data[0];
+            const iso = commit?.commit?.committer?.date || commit?.commit?.author?.date;
+            if (!iso) throw new Error('No commit date');
+            const d = new Date(iso);
+            // Convert to GMT-6
+            const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+            const gmt6 = new Date(utc + (-6 * 3600000));
+            // Format: M/D/YY h:mm am/pm gmt-6
+            const mm = gmt6.getMonth() + 1;
+            const dd = gmt6.getDate();
+            const yy = String(gmt6.getFullYear()).slice(-2);
+            let h = gmt6.getHours();
+            const ampm = h >= 12 ? 'pm' : 'am';
+            h = h % 12; h = h ? h : 12;
+            const m = String(gmt6.getMinutes()).padStart(2, '0');
+            el.textContent = `last updated: ${mm}/${dd}/${yy} ${h}:${m} ${ampm}`;
+        })
+        .catch(() => {
+            // Fallback to local time GMT-6 now
+            const now = new Date();
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const gmt6 = new Date(utc + (-6 * 3600000));
+            const mm = gmt6.getMonth() + 1;
+            const dd = gmt6.getDate();
+            const yy = String(gmt6.getFullYear()).slice(-2);
+            let h = gmt6.getHours();
+            const ampm = h >= 12 ? 'pm' : 'am';
+            h = h % 12; h = h ? h : 12;
+            const m = String(gmt6.getMinutes()).padStart(2, '0');
+            el.textContent = `last updated: ${mm}/${dd}/${yy} ${h}:${m} ${ampm}`;
+        });
+})();
+</script>
 
 <script>
 // Initialize games display with Firebase
@@ -518,6 +567,8 @@ if (typeof gamesManager !== 'undefined') {
     renderAllGames(allGames);
   });
 }
+
+// Presence tracking now handled by JS/presence.js
 
 function renderTrendingGames(games) {
   const container = document.getElementById('trending-games');

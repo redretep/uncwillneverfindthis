@@ -1,7 +1,9 @@
 function searching(input) {
     input.classList.add("active");
     var filter = input.value.toUpperCase();
-    var gamesContainer = document.getElementById("games");
+    // Use the rendered all-games container
+    var gamesContainer = document.getElementById("all-games");
+    if (!gamesContainer) return;
     var gameLinks = gamesContainer.getElementsByClassName("game-link");
     
     // Show/hide clear button
@@ -74,6 +76,7 @@ function updateSearchResults(filter, gameLinks) {
 
 function clearSearch() {
     var searchBox = document.getElementById("search-box");
+    if (!searchBox) return;
     searchBox.value = "";
     searching(searchBox);
     searchBox.focus();
