@@ -153,11 +153,12 @@
           }
           
           usersList.innerHTML = Object.entries(usersByIP).map(([ip, sessions], idx) => {
-            // Show all locations for this user
-            const locations = sessions.map(s => s.displayLocation || 'browsing').join(', ');
+            // Show all unique locations for this user (deduplicated)
+            const uniqueLocations = [...new Set(sessions.map(s => s.displayLocation || 'browsing'))];
+            const locations = uniqueLocations.join(', ');
             // Get first game icon if any session has a game
             const gameSession = sessions.find(s => s.gameId);
-            const gameIcon = gameSession?.gameId ? `<img src="/projects/${gameSession.gameId}/thumb.png" alt="" style="width: 24px; height: 24px; border-radius: 4px; object-fit: cover; margin-right: 8px;">` : '';
+            const gameIcon = gameSession ? `<img src="/projects/${gameSession.gameId}/thumb.png" alt="" style="width: 24px; height: 24px; border-radius: 4px; object-fit: cover; margin-right: 8px;">` : '';
             const tabCount = sessions.length > 1 ? ` (${sessions.length} tabs)` : '';
             
             return `
