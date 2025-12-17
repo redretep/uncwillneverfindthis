@@ -571,16 +571,6 @@
 if (typeof gamesManager !== 'undefined') {
   gamesManager.init();
   
-  // Listen to presence changes to update player badges in real-time
-  if (typeof firebase !== 'undefined') {
-    const db = firebase.database();
-    db.ref('presence/sessions').on('value', () => {
-      // Re-render all games when presence changes (shows updated player counts)
-      const allGames = gamesManager.getAllGames();
-      renderAllGames(allGames);
-    });
-  }
-  
   gamesManager.addListener((allGames, trendingGames) => {
     console.log('Games updated - Trending:', trendingGames.length, 'All:', allGames.length);
     renderTrendingGames(trendingGames);
@@ -652,66 +642,22 @@ function renderAllGames(games) {
   const container = document.getElementById('all-games');
   container.innerHTML = '';
   
-  // Get active player counts from Firebase
-  const db = firebase.database();
-  db.ref('presence/sessions').once('value', (snapshot) => {
-    const sessions = snapshot.val() || {};
-    const playersByGame = {};
+  // Sort alphabetically only for the "all games" section
+  const sortedGames = [...games].sort((a, b) => a.name.localeCompare(b.name));
+  
+  sortedGames.forEach(game => {
+    const gameLink = document.createElement('a');
+    gameLink.href = game.path;
+    gameLink.className = 'game-link container';
     
-    // Count players per game (only actual games, not browsing)
-    Object.values(sessions).forEach(session => {
-      if (session && session.gameId && session.isGame) {
-        playersByGame[session.gameId] = (playersByGame[session.gameId] || 0) + 1;
-      }
-    });
+    gameLink.innerHTML = `
+      <div class="game-tile">
+        <img class="game-icon" src="${game.thumb}" alt="${game.name}" width="360" height="360">
+        <h1 class="game-title">${game.name}</h1>
+      </div>
+    `;
     
-    // Get trending game IDs for comparison
-    const trendingIds = new Set(gamesManager.getTrendingGames().map(g => g.id));
-    
-    // Sort: active games first (not in trending), then alphabetically
-    const sortedGames = [...games].sort((a, b) => {
-      const aActive = playersByGame[a.id] ? 1 : 0;
-      const bActive = playersByGame[b.id] ? 1 : 0;
-      const aInTrending = trendingIds.has(a.id) ? 1 : 0;
-      const bInTrending = trendingIds.has(b.id) ? 1 : 0;
-      
-      // If different trending status, sort by that first
-      if (aInTrending !== bInTrending) {
-        return bInTrending - aInTrending;
-      }
-      
-      // Within same trending status, active games come first (unless in trending)
-      if (aInTrending === 0 && bInTrending === 0 && aActive !== bActive) {
-        return bActive - aActive;
-      }
-      
-      // Otherwise alphabetical
-      return a.name.localeCompare(b.name);
-    });
-    
-    sortedGames.forEach(game => {
-      const gameLink = document.createElement('a');
-      gameLink.href = game.path;
-      gameLink.className = 'game-link container';
-      
-      const playerCount = playersByGame[game.id] || 0;
-      const playerBadge = playerCount > 0 
-        ? `<div class="player-badge" style="position: absolute; top: 8px; right: 8px; background: #000000; border: 1px solid #2ecc71; border-radius: 12px; padding: 4px 8px; display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: #2ecc71; z-index: 10;">
-             <span style="width: 6px; height: 6px; border-radius: 50%; background: #2ecc71; display: inline-block;"></span>
-             ${playerCount} player${playerCount !== 1 ? 's' : ''}
-           </div>`
-        : '';
-      
-      gameLink.innerHTML = `
-        <div class="game-tile" style="position: relative;">
-          ${playerBadge}
-          <img class="game-icon" src="${game.thumb}" alt="${game.name}" width="360" height="360">
-          <h1 class="game-title">${game.name}</h1>
-        </div>
-      `;
-      
-      container.appendChild(gameLink);
-    });
+    container.appendChild(gameLink);
   });
 }
 </script>
