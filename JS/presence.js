@@ -80,8 +80,20 @@
           .filter(([key, s]) => s && (now - (s.ts || 0)) < 30000)
           .map(([key, s]) => s);
         
-        const totalOnline = validSessions.length;
-        const ingame = validSessions.filter(s => s.isGame === true).length;
+        // Deduplicate by IP address to count unique users
+        const uniqueIPs = new Set();
+        const uniqueInGameIPs = new Set();
+        validSessions.forEach(s => {
+          if (s.ip && s.ip !== 'unknown') {
+            uniqueIPs.add(s.ip);
+            if (s.isGame === true) {
+              uniqueInGameIPs.add(s.ip);
+            }
+          }
+        });
+        
+        const totalOnline = uniqueIPs.size;
+        const ingame = uniqueInGameIPs.size;
         console.log('Presence update - Total:', totalOnline, 'In Game:', ingame);
         if (onlineCountEl) onlineCountEl.textContent = totalOnline + ' online';
         if (ingameCountEl) ingameCountEl.textContent = ingame + ' in game';
@@ -107,7 +119,7 @@
           const sessions = snapshot.val() || {};
           const now = Date.now();
           
-          const otherUsers = Object.entries(sessions)
+          const otherSessions = Object.entries(sessions)
             .filter(([key, user]) => {
               // Exclude current session, stale sessions, and null entries
               return key !== currentSessionId 
@@ -116,19 +128,36 @@
             })
             .map(([key, user]) => user);
           
-          if (otherUsers.length === 0) {
+          // Group sessions by IP address
+          const usersByIP = {};
+          otherSessions.forEach(session => {
+            const ip = session.ip || 'unknown';
+            if (!usersByIP[ip]) {
+              usersByIP[ip] = [];
+            }
+            usersByIP[ip].push(session);
+          });
+          
+          if (Object.keys(usersByIP).length === 0) {
             usersList.innerHTML = '<div style="color: #999999; font-size: 0.875rem;">no other users online</div>';
             return;
           }
-          usersList.innerHTML = otherUsers.map((user, idx) => {
-            const gameIcon = user.gameId ? `<img src="/projects/${user.gameId}/thumb.png" alt="" style="width: 24px; height: 24px; border-radius: 4px; object-fit: cover; margin-right: 8px;">` : '';
+          
+          usersList.innerHTML = Object.entries(usersByIP).map(([ip, sessions], idx) => {
+            // Show all locations for this user
+            const locations = sessions.map(s => s.displayLocation || 'browsing').join(', ');
+            // Get first game icon if any session has a game
+            const gameSession = sessions.find(s => s.gameId);
+            const gameIcon = gameSession?.gameId ? `<img src="/projects/${gameSession.gameId}/thumb.png" alt="" style="width: 24px; height: 24px; border-radius: 4px; object-fit: cover; margin-right: 8px;">` : '';
+            const tabCount = sessions.length > 1 ? ` (${sessions.length} tabs)` : '';
+            
             return `
               <div style="background: #1a1a1a; padding: 12px; border-radius: 8px; font-size: 0.875rem; border-left: 3px solid #2ecc71; display: flex; align-items: flex-start; gap: 8px;">
                 ${gameIcon}
                 <div style="flex: 1;">
-                  <div><strong>user ${idx + 1}</strong></div>
-                  <div style="color: #999999; margin-top: 4px;">ip: ${user.ip || 'unknown'}</div>
-                  <div style="color: #999999;">location: ${user.displayLocation || 'browsing'}</div>
+                  <div><strong>user ${idx + 1}${tabCount}</strong></div>
+                  <div style="color: #999999; margin-top: 4px;">ip: ${ip}</div>
+                  <div style="color: #999999;">location: ${locations}</div>
                 </div>
               </div>
             `;
