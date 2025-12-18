@@ -3,10 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Desmos | Graphing Calculator</title>
+<title>druskii128 - Free Online Games | Play Browser Games</title>
 <link rel="stylesheet" href="styles.css">
 <link rel="icon" href="favicon.ico" type="image/x-icon">
-<meta name="description" content="labubu">
+<meta name="description" content="Play free online games on druskii128. Browse through hundreds of browser-based games including action, puzzle, sports, and arcade games. No downloads required!">
+<meta name="keywords" content="free games, online games, browser games, flash games, html5 games, web games">
+<meta name="author" content="druskii128">
+<meta property="og:title" content="druskii128 - Free Online Games">
+<meta property="og:description" content="Play free online games on druskii128. No downloads required!">
+<meta property="og:type" content="website">
+<meta name="robots" content="index, follow">
 <!-- analyticsssss -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-F08N1KVKEF"></script>
 <script>
@@ -39,6 +45,8 @@
             </button>
             <a href="https://forms.gle/eRT37jLokfETBNUs6">request</a>
             <a href="#" id="changelog-btn">changelog</a>
+            <a href="privacy-policy.html">privacy</a>
+            <a href="about.html">about</a>
             <span id="last-updated">last updated: loading…</span>
         </div>
   </nav>
@@ -75,6 +83,19 @@
 
   <div id="trending-games" class="flex-container" style="margin-bottom: 50px;">
     <!-- Trending games loaded from Firebase -->
+  </div>
+
+  <!-- Ad Container Between Sections -->
+  <div class="ad-container" style="margin: 40px auto; text-align: center; max-width: 728px;">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-9261158347206771"
+         data-ad-slot="1234567890"
+         data-ad-format="horizontal"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
   </div>
   
   <h2 class="text-center">all games</h2>
@@ -453,6 +474,19 @@
           </a>
 
   </div>
+
+  <!-- Ad Container Between Sections -->
+  <div class="ad-container" style="margin: 40px auto; text-align: center; max-width: 728px;">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-9261158347206771"
+         data-ad-slot="9876543210"
+         data-ad-format="horizontal"
+         data-full-width-responsive="true"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
 		
         <h2 id="papas-games" class="text-center">papa's games</h2>
                 
@@ -617,7 +651,28 @@ function renderAllGames(games) {
   // Sort alphabetically only for the "all games" section
   const sortedGames = [...games].sort((a, b) => a.name.localeCompare(b.name));
   
-  sortedGames.forEach(game => {
+  sortedGames.forEach((game, index) => {
+    // Insert ad every 12 games
+    if (index > 0 && index % 12 === 0) {
+      const adCard = document.createElement('div');
+      adCard.className = 'ad-card';
+      adCard.innerHTML = `
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-9261158347206771"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      `;
+      container.appendChild(adCard);
+      
+      // Initialize the ad
+      try {
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (e) {
+        console.log('AdSense error:', e);
+      }
+    }
+    
     const gameLink = document.createElement('a');
     gameLink.href = game.path;
     gameLink.className = 'game-link container';
@@ -640,7 +695,28 @@ function renderPapasGames(games) {
 
     const sortedGames = [...games].sort((a, b) => a.name.localeCompare(b.name));
 
-    sortedGames.forEach(game => {
+    sortedGames.forEach((game, index) => {
+        // Insert ad every 8 games in papa's section
+        if (index > 0 && index % 8 === 0) {
+            const adCard = document.createElement('div');
+            adCard.className = 'ad-card';
+            adCard.innerHTML = `
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="ca-pub-9261158347206771"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+            `;
+            container.appendChild(adCard);
+            
+            // Initialize the ad
+            try {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {
+                console.log('AdSense error:', e);
+            }
+        }
+        
         const gameLink = document.createElement('a');
         gameLink.href = game.path;
         gameLink.className = 'game-link container';
@@ -656,5 +732,19 @@ function renderPapasGames(games) {
     });
 }
 </script>
+
+<footer class="site-footer">
+    <div class="footer-content">
+        <div class="footer-links">
+            <a href="privacy-policy.html">privacy policy</a>
+            <a href="terms-of-service.html">terms of service</a>
+            <a href="about.html">about</a>
+            <a href="https://forms.gle/eRT37jLokfETBNUs6" target="_blank" rel="noopener noreferrer">contact</a>
+        </div>
+        <p class="footer-text">© 2024 druskii128. all rights reserved.</p>
+        <p class="footer-disclaimer">all games are property of their respective owners. this site is supported by advertising.</p>
+    </div>
+</footer>
+
 </body>
 </html>
