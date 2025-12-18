@@ -157,6 +157,76 @@ header {
   flex-shrink: 0;
 }
 
+/* Announcement Banner */
+.announcement-banner {
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-topbar);
+  padding: 16px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  transform: translateY(-100%);
+  transition: transform 0.4s ease-out;
+  position: sticky;
+  top: 73px;
+  z-index: 99;
+}
+
+.announcement-banner.show {
+  transform: translateY(0);
+}
+
+.announcement-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+}
+
+.announcement-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.announcement-text {
+  flex: 1;
+}
+
+.announcement-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.announcement-message {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.announcement-dismiss {
+  padding: 8px 20px;
+  background: var(--primary);
+  color: var(--bg-dark);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-transform: lowercase;
+}
+
+.announcement-dismiss:hover {
+  background: var(--primary-dark);
+  transform: scale(1.05);
+}
+
 /* Theme Dropdown Styling */
 .theme-toggle {
   background: var(--bg-card);
@@ -644,6 +714,24 @@ a.active::before {
   .topnav-right {
     font-size: 0.75rem;
     flex-wrap: wrap;
+  }
+
+  .announcement-banner {
+    padding: 12px 24px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .announcement-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .announcement-dismiss {
+    width: 100%;
+    padding: 10px;
   }
   
   h1.text-center, h2.text-center {

@@ -28,6 +28,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="JS/firebase-config.js"></script>
 <script src="JS/games-manager.js"></script>
+<script src="JS/announcement-manager.js"></script>
 </head>
 <body onload="startTime()">
 
@@ -49,6 +50,18 @@
         </div>
   </nav>
 </header>
+
+<!-- Announcement Banner -->
+<div id="announcement-banner" class="announcement-banner" style="display: none;">
+  <div class="announcement-content">
+    <img id="announcement-icon" class="announcement-icon" src="" alt="" style="display: none;">
+    <div class="announcement-text">
+      <h3 id="announcement-title" class="announcement-title"></h3>
+      <p id="announcement-message" class="announcement-message"></p>
+    </div>
+  </div>
+  <button id="announcement-dismiss" class="announcement-dismiss"></button>
+</div>
 
 <main>
     <!-- search moved to topbar -->
@@ -564,6 +577,54 @@
 </script>
 
 <script>
+// Initialize announcement display
+if (typeof announcementManager !== 'undefined') {
+  announcementManager.init();
+  
+  announcementManager.addListener((announcement) => {
+    const banner = document.getElementById('announcement-banner');
+    
+    if (announcement && !sessionStorage.getItem('announcement-dismissed-' + announcement.createdAt)) {
+      // Show announcement
+      document.getElementById('announcement-title').textContent = announcement.title;
+      document.getElementById('announcement-message').textContent = announcement.content;
+      document.getElementById('announcement-dismiss').textContent = announcement.buttonText || 'ok';
+      
+      // Handle icon
+      const iconEl = document.getElementById('announcement-icon');
+      if (announcement.icon) {
+        iconEl.src = announcement.icon;
+        iconEl.style.display = 'block';
+      } else {
+        iconEl.style.display = 'none';
+      }
+      
+      banner.style.display = 'flex';
+      
+      // Slide down animation
+      setTimeout(() => {
+        banner.classList.add('show');
+      }, 100);
+    } else {
+      banner.style.display = 'none';
+      banner.classList.remove('show');
+    }
+  });
+  
+  // Handle dismiss button
+  document.getElementById('announcement-dismiss').addEventListener('click', function() {
+    const announcement = announcementManager.getCurrentAnnouncement();
+    if (announcement) {
+      sessionStorage.setItem('announcement-dismissed-' + announcement.createdAt, 'true');
+    }
+    const banner = document.getElementById('announcement-banner');
+    banner.classList.remove('show');
+    setTimeout(() => {
+      banner.style.display = 'none';
+    }, 300);
+  });
+}
+
 // Initialize games display with Firebase
 if (typeof gamesManager !== 'undefined') {
   gamesManager.init();
