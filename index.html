@@ -614,6 +614,14 @@ if (typeof announcementManager !== 'undefined') {
   // Handle dismiss button
   document.getElementById('announcement-dismiss').addEventListener('click', function() {
     const announcement = announcementManager.getCurrentAnnouncement();
+    
+    // If there's a button link, navigate to it instead of dismissing
+    if (announcement && announcement.buttonLink) {
+      window.location.href = announcement.buttonLink;
+      return;
+    }
+    
+    // Otherwise, dismiss the announcement
     if (announcement) {
       sessionStorage.setItem('announcement-dismissed-' + announcement.createdAt, 'true');
     }

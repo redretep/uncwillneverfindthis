@@ -401,6 +401,10 @@
         <label>button text</label>
         <input type="text" id="announcement-button" placeholder="OK" value="OK" />
       </div>
+      <div class="form-group">
+        <label>button link (optional)</label>
+        <input type="text" id="announcement-button-link" placeholder="e.g., https://example.com or /page.html" />
+      </div>
       <div class="form-actions">
         <button class="btn-primary" onclick="createAnnouncement()">create announcement</button>
         <button class="btn-secondary" onclick="closeAnnouncementModal()">cancel</button>
@@ -604,6 +608,7 @@ function closeAnnouncementModal() {
   document.getElementById('announcement-content').value = '';
   document.getElementById('announcement-icon').value = '';
   document.getElementById('announcement-button').value = 'OK';
+  document.getElementById('announcement-button-link').value = '';
 }
 
 async function createAnnouncement() {
@@ -611,10 +616,11 @@ async function createAnnouncement() {
   const content = document.getElementById('announcement-content').value.trim();
   const icon = document.getElementById('announcement-icon').value.trim();
   const buttonText = document.getElementById('announcement-button').value.trim() || 'OK';
+  const buttonLink = document.getElementById('announcement-button-link').value.trim();
   
   if (title && content) {
     try {
-      await announcementManager.setAnnouncement({ title, content, icon, buttonText });
+      await announcementManager.setAnnouncement({ title, content, icon, buttonText, buttonLink });
       closeAnnouncementModal();
       alert('announcement created successfully!');
     } catch (error) {

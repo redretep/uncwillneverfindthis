@@ -32,6 +32,7 @@ class AnnouncementManager {
       content: announcement.content,
       icon: announcement.icon || null,
       buttonText: announcement.buttonText || 'OK',
+      buttonLink: announcement.buttonLink || null,
       createdAt: Date.now()
     };
     await database.ref('announcement').set(announcementData);
