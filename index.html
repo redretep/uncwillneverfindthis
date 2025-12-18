@@ -564,6 +564,32 @@
 </script>
 
 <script>
+// Helper function to extract gameId from game path
+function extractGameIdFromPath(path) {
+  if (!path) return null;
+  const pathMatch = path.match(/\/projects\/([^\/]+)\//);
+  if (pathMatch) {
+    return pathMatch[1];
+  } else if (path.includes('subway-surfers')) {
+    return 'subway-surfers';
+  }
+  return null;
+}
+
+// Helper function to generate player count HTML
+function generatePlayerCountHtml(gameId) {
+  if (!gameId) return '';
+  const playerCount = window.gamePlayerCounts?.[gameId] || 0;
+  if (playerCount === 0) return '';
+  
+  return `
+    <div class="player-counter">
+      <span class="player-counter-icon">👤</span>
+      <span>${playerCount}</span>
+    </div>
+  `;
+}
+
 // Initialize games display with Firebase
 if (typeof gamesManager !== 'undefined') {
   gamesManager.init();
@@ -591,7 +617,7 @@ if (typeof gamesManager !== 'undefined') {
   
   // Re-render games when player counts are updated
   window.addEventListener('playerCountsUpdated', () => {
-    if (currentTrendingGames.length > 0) {
+    if (currentTrendingGames.length > 0 || currentAllSectionGames.length > 0 || currentPapasSectionGames.length > 0) {
       renderTrendingGames(currentTrendingGames);
       renderAllGames(currentAllSectionGames);
       renderPapasGames(currentPapasSectionGames);
@@ -644,23 +670,9 @@ function renderTrendingGames(games) {
     const plays = game.plays || 0;
     const playsText = plays >= 1000 ? (plays / 1000).toFixed(1) + 'k' : plays;
     
-    // Extract gameId from path
-    let gameId = null;
-    const pathMatch = game.path?.match(/\/projects\/([^\/]+)\//);
-    if (pathMatch) {
-      gameId = pathMatch[1];
-    } else if (game.path?.includes('subway-surfers')) {
-      gameId = 'subway-surfers';
-    }
-    
-    // Get player count for this game
-    const playerCount = gameId ? (window.gamePlayerCounts?.[gameId] || 0) : 0;
-    const playerCountHtml = playerCount > 0 ? `
-      <div class="player-counter">
-        <span class="player-counter-icon">👤</span>
-        <span>${playerCount}</span>
-      </div>
-    ` : '';
+    // Get gameId and player count using helper functions
+    const gameId = extractGameIdFromPath(game.path);
+    const playerCountHtml = generatePlayerCountHtml(gameId);
     
     gameLink.innerHTML = `
       <div class="game-tile-popular">
@@ -711,23 +723,9 @@ function renderAllGames(games) {
     gameLink.href = game.path;
     gameLink.className = 'game-link container';
     
-    // Extract gameId from path
-    let gameId = null;
-    const pathMatch = game.path?.match(/\/projects\/([^\/]+)\//);
-    if (pathMatch) {
-      gameId = pathMatch[1];
-    } else if (game.path?.includes('subway-surfers')) {
-      gameId = 'subway-surfers';
-    }
-    
-    // Get player count for this game
-    const playerCount = gameId ? (window.gamePlayerCounts?.[gameId] || 0) : 0;
-    const playerCountHtml = playerCount > 0 ? `
-      <div class="player-counter">
-        <span class="player-counter-icon">👤</span>
-        <span>${playerCount}</span>
-      </div>
-    ` : '';
+    // Get gameId and player count using helper functions
+    const gameId = extractGameIdFromPath(game.path);
+    const playerCountHtml = generatePlayerCountHtml(gameId);
     
     gameLink.innerHTML = `
       <div class="game-tile">
@@ -774,23 +772,9 @@ function renderPapasGames(games) {
         gameLink.href = game.path;
         gameLink.className = 'game-link container';
 
-        // Extract gameId from path
-        let gameId = null;
-        const pathMatch = game.path?.match(/\/projects\/([^\/]+)\//);
-        if (pathMatch) {
-          gameId = pathMatch[1];
-        } else if (game.path?.includes('subway-surfers')) {
-          gameId = 'subway-surfers';
-        }
-        
-        // Get player count for this game
-        const playerCount = gameId ? (window.gamePlayerCounts?.[gameId] || 0) : 0;
-        const playerCountHtml = playerCount > 0 ? `
-          <div class="player-counter">
-            <span class="player-counter-icon">👤</span>
-            <span>${playerCount}</span>
-          </div>
-        ` : '';
+        // Get gameId and player count using helper functions
+        const gameId = extractGameIdFromPath(game.path);
+        const playerCountHtml = generatePlayerCountHtml(gameId);
 
         gameLink.innerHTML = `
             <div class="game-tile">
