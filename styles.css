@@ -563,26 +563,6 @@ main {
   font-size: 12px;
 }
 
-.player-counter {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 4px 8px;
-  border-radius: 4px;
-  z-index: 3;
-  font-size: 0.75rem;
-  color: #ffffff;
-  font-weight: 500;
-}
-
-.player-counter-icon {
-  font-size: 12px;
-}
-
 .game-tile:hover .game-title {
   color: var(--primary);
 }

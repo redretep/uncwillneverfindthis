@@ -1,7 +1,4 @@
 // Firebase Presence Tracking
-// Global variable to store per-game player counts
-window.gamePlayerCounts = {};
-
 (function(){
   if (typeof firebase === 'undefined') return;
   try {
@@ -109,35 +106,6 @@ window.gamePlayerCounts = {};
         console.log('Presence update - Total:', totalOnline, 'In Game:', ingame);
         if (onlineCountEl) onlineCountEl.textContent = totalOnline + ' online';
         if (ingameCountEl) ingameCountEl.textContent = ingame + ' in game';
-        
-        // Calculate per-game player counts
-        const gamePlayerMap = {};
-        validSessions.forEach(s => {
-          if (s.isGame === true && s.gameId) {
-            if (!gamePlayerMap[s.gameId]) {
-              gamePlayerMap[s.gameId] = { uniqueIPs: new Set(), unknownCount: 0 };
-            }
-            if (s.ip && s.ip !== 'unknown') {
-              gamePlayerMap[s.gameId].uniqueIPs.add(s.ip);
-            } else {
-              gamePlayerMap[s.gameId].unknownCount++;
-            }
-          }
-        });
-        
-        // Convert to simple count map
-        const playerCounts = {};
-        Object.keys(gamePlayerMap).forEach(gameId => {
-          const data = gamePlayerMap[gameId];
-          playerCounts[gameId] = data.uniqueIPs.size + data.unknownCount;
-        });
-        
-        // Update global variable
-        window.gamePlayerCounts = playerCounts;
-        console.log('Per-game player counts:', playerCounts);
-        
-        // Dispatch custom event to notify game rendering that counts have updated
-        window.dispatchEvent(new CustomEvent('playerCountsUpdated', { detail: playerCounts }));
       });
     }
 
