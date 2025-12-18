@@ -626,23 +626,18 @@ if (typeof announcementManager !== 'undefined') {
   // Handle dismiss button
   document.getElementById('announcement-dismiss').addEventListener('click', function() {
     const announcement = announcementManager.getCurrentAnnouncement();
+    const buttonLink = announcement?.buttonLink?.trim();
     
-    // If there's a button link, navigate to it instead of dismissing
-    if (announcement && announcement.buttonLink) {
-      const buttonLink = announcement.buttonLink.trim();
-      
-      // Check if buttonLink is not empty after trimming
-      if (!buttonLink) {
-        dismissAnnouncement(announcement);
-        return;
-      }
-      
+    // If there's a valid button link, navigate to it instead of dismissing
+    if (buttonLink) {
       // Handle relative URLs (starting with / but not with //)
       if (buttonLink.startsWith('/') && !buttonLink.startsWith('//')) {
-        // Validate relative URL: no dangerous patterns
+        // Validate relative URL: check for dangerous patterns at the start or as path components
         const lowerLink = buttonLink.toLowerCase();
-        const dangerousPatterns = ['..', 'javascript:', 'data:', 'vbscript:', 'file:'];
-        const hasDangerousPattern = dangerousPatterns.some(pattern => lowerLink.includes(pattern));
+        const dangerousPatterns = ['/../', 'javascript:', 'data:', 'vbscript:', 'file:', 'blob:'];
+        const hasDangerousPattern = dangerousPatterns.some(pattern => 
+          lowerLink.includes(pattern) || lowerLink === '/..'
+        );
         
         if (!hasDangerousPattern) {
           window.location.href = buttonLink;
