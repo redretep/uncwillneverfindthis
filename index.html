@@ -631,12 +631,24 @@ if (typeof announcementManager !== 'undefined') {
     // If there's a valid button link, navigate to it instead of dismissing
     if (buttonLink) {
       // Handle relative URLs (starting with / but not with //)
+      // Protocol-relative URLs (//) are rejected as they can redirect externally
       if (buttonLink.startsWith('/') && !buttonLink.startsWith('//')) {
-        // Validate relative URL: check for dangerous patterns at the start or as path components
+        // Validate relative URL: check for dangerous patterns
         const lowerLink = buttonLink.toLowerCase();
-        const dangerousPatterns = ['/../', 'javascript:', 'data:', 'vbscript:', 'file:', 'blob:'];
+        // Decode URL to catch encoded dangerous patterns
+        let decodedLink;
+        try {
+          decodedLink = decodeURIComponent(buttonLink).toLowerCase();
+        } catch (e) {
+          decodedLink = lowerLink;
+        }
+        
+        const dangerousPatterns = [
+          '/../', '/..', '..%2f', '%2e%2e/', '%2e%2e%2f',
+          'javascript:', 'data:', 'vbscript:', 'file:', 'blob:'
+        ];
         const hasDangerousPattern = dangerousPatterns.some(pattern => 
-          lowerLink.includes(pattern) || lowerLink === '/..'
+          lowerLink.includes(pattern) || decodedLink.includes(pattern)
         );
         
         if (!hasDangerousPattern) {
@@ -647,9 +659,9 @@ if (typeof announcementManager !== 'undefined') {
           // Fall through to dismiss
         }
       } else {
-        // Validate absolute URLs
+        // Validate absolute URLs (including protocol-relative URLs)
         try {
-          const url = new URL(buttonLink);
+          const url = new URL(buttonLink, window.location.origin);
           // Only allow http and https protocols
           if (url.protocol === 'http:' || url.protocol === 'https:') {
             window.location.href = url.href;
