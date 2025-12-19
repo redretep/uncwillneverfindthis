@@ -19,6 +19,14 @@ function applyTheme(themeId) {
   root.style.setProperty('--secondary', theme.colors.secondary);
   root.style.setProperty('--accent', theme.colors.accent);
   root.style.setProperty('--success', theme.colors.success);
+  // Derive readable text color for elements on primary backgrounds
+  try {
+    const p = String(theme.colors.primary || '').trim().toLowerCase();
+    const onPrimary = (p === '#fff' || p === '#ffffff' || p === 'white') ? '#000000' : '#ffffff';
+    root.style.setProperty('--on-primary', onPrimary);
+  } catch (_) {
+    root.style.setProperty('--on-primary', '#ffffff');
+  }
   
   // Background colors
   root.style.setProperty('--bg-dark', theme.colors.bgDark);
@@ -62,11 +70,44 @@ function applyTheme(themeId) {
   localStorage.setItem('selectedTheme', themeId);
 }
 
-// Toggle between dark and light themes
+// Create or reuse transition overlay
+function getTransitionOverlay() {
+  let overlay = document.getElementById('theme-transition-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'theme-transition-overlay';
+    overlay.className = 'theme-transition-overlay';
+    document.body.appendChild(overlay);
+  }
+  return overlay;
+}
+
+// Toggle between dark and light themes with cinematic wipe effect
 function toggleTheme() {
   const currentTheme = localStorage.getItem('selectedTheme') || DEFAULT_THEME;
   const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  applyTheme(newTheme);
+  
+  // Get new theme to set overlay background color
+  const newThemeObj = getThemeById(newTheme);
+  
+  // Determine wipe direction: down for sunrise (dark→light), up for sunset (light→dark)
+  const direction = newTheme === 'light' ? 'wipe-down' : 'wipe-up';
+  
+  // Create overlay with new theme's background color
+  const overlay = getTransitionOverlay();
+  overlay.style.backgroundColor = newThemeObj.colors.bgDark;
+  overlay.className = 'theme-transition-overlay ' + direction;
+  
+  // Apply theme halfway through animation for smooth transition
+  setTimeout(() => {
+    applyTheme(newTheme);
+  }, 300);
+  
+  // Clean up overlay after animation
+  setTimeout(() => {
+    overlay.className = 'theme-transition-overlay';
+    overlay.style.backgroundColor = '';
+  }, 600);
 }
 
 // Initialize theme on page load

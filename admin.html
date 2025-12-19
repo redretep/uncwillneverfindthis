@@ -300,6 +300,77 @@
   .btn-secondary:hover {
     background: #333333;
   }
+
+  .leaderboard-entry {
+    display: grid;
+    grid-template-columns: 1fr 100px 100px 120px;
+    padding: 12px;
+    border-bottom: 1px solid #1a1a1a;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .leaderboard-entry:last-child {
+    border-bottom: none;
+  }
+
+  .leaderboard-entry:hover {
+    background: #1a1a1a;
+  }
+
+  .leaderboard-entry-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .leaderboard-entry-username {
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  .leaderboard-entry-email {
+    font-size: 0.875rem;
+    color: #999999;
+  }
+
+  .leaderboard-entry-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .leaderboard-entry-actions button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid #333333;
+    background: #1a1a1a;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+  }
+
+  .leaderboard-entry-actions button:hover {
+    background: #333333;
+  }
+
+  .leaderboard-entry-actions .delete-btn:hover {
+    background: #ff4444;
+    border-color: #ff4444;
+  }
+
+  .leaderboard-stat {
+    text-align: right;
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  .leaderboard-stat-label {
+    font-size: 0.75rem;
+    color: #999999;
+    display: block;
+  }
 </style>
 </head>
 <body>
@@ -335,6 +406,8 @@
     <div class="admin-controls">
       <button class="control-btn" onclick="showAddGameModal()">+ add new game</button>
       <button class="control-btn" onclick="showAnnouncementModal()">create announcement</button>
+      <button class="control-btn" onclick="showLeaderboardManager()">manage leaderboard</button>
+      <button class="control-btn" onclick="showSettingsModal()">settings</button>
       <button class="control-btn" onclick="exportGames()">export games list</button>
       <button class="control-btn" onclick="refreshList()">refresh list</button>
     </div>
@@ -410,6 +483,38 @@
       <div class="form-actions">
         <button class="btn-primary" onclick="createAnnouncement()">create announcement</button>
         <button class="btn-secondary" onclick="closeAnnouncementModal()">cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard Manager Modal -->
+  <div id="leaderboard-manager-modal" class="add-game-modal">
+    <div class="modal-content-admin" style="max-width: 800px; max-height: 80vh; overflow-y: auto;">
+      <h2>manage leaderboard</h2>
+      <div class="form-group" style="margin-bottom: 24px;">
+        <label>leaderboard entries</label>
+        <div id="leaderboard-entries" style="max-height: 400px; overflow-y: auto; border: 1px solid #1a1a1a; border-radius: 6px;">
+          <div style="padding: 16px; color: #999;">loading...</div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-secondary" onclick="closeLeaderboardManager()">close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="add-game-modal">
+    <div class="modal-content-admin">
+      <h2>site settings</h2>
+      <div class="form-group">
+        <label>hero text</label>
+        <input type="text" id="hero-text-input" placeholder="e.g., druskii is so gnarly -s" />
+        <small style="color: #666; display: block; margin-top: 4px;">appears below the site title on homepage</small>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="saveHeroText()">save</button>
+        <button class="btn-secondary" onclick="closeSettingsModal()">cancel</button>
       </div>
     </div>
   </div>
@@ -622,6 +727,110 @@ function refreshList() {
   });
 });
 
+// Leaderboard Manager Functions
+function showLeaderboardManager() {
+  document.getElementById('leaderboard-manager-modal').style.display = 'flex';
+  loadLeaderboardEntries();
+}
+
+function closeLeaderboardManager() {
+  document.getElementById('leaderboard-manager-modal').style.display = 'none';
+}
+
+function loadLeaderboardEntries() {
+  const db = firebase.database();
+  const entriesContainer = document.getElementById('leaderboard-entries');
+  
+  db.ref('leaderboards').orderByChild('totalPlays').limitToLast(100).once('value', snap => {
+    const entries = [];
+    snap.forEach(childSnap => {
+      entries.push({
+        uid: childSnap.key,
+        ...childSnap.val()
+      });
+    });
+    
+    // Sort by plays descending
+    entries.sort((a, b) => (b.totalPlays || 0) - (a.totalPlays || 0));
+    
+    if (entries.length === 0) {
+      entriesContainer.innerHTML = '<div style="padding: 16px; color: #999;">no leaderboard entries yet</div>';
+      return;
+    }
+    
+    entriesContainer.innerHTML = entries.map((entry, idx) => `
+      <div class="leaderboard-entry">
+        <div class="leaderboard-entry-info">
+          <div class="leaderboard-entry-username">#${idx + 1} ${entry.username || 'anonymous'}</div>
+          <div class="leaderboard-entry-email">${entry.email || 'no email'}</div>
+        </div>
+        <div class="leaderboard-stat">
+          <span class="leaderboard-stat-label">plays</span>
+          ${entry.totalPlays || 0}
+        </div>
+        <div class="leaderboard-stat">
+          <span class="leaderboard-stat-label">time (min)</span>
+          ${Math.round((entry.totalPlayTime || 0) / 60)}
+        </div>
+        <div class="leaderboard-entry-actions">
+          <button onclick="editLeaderboardEntry('${entry.uid}', ${entry.totalPlays || 0}, ${entry.totalPlayTime || 0})">edit</button>
+          <button class="delete-btn" onclick="deleteLeaderboardEntry('${entry.uid}', '${(entry.username || 'anonymous').replace(/'/g, "\\'")}')">delete</button>
+        </div>
+      </div>
+    `).join('');
+  }).catch(err => {
+    console.error('Error loading leaderboard:', err);
+    entriesContainer.innerHTML = '<div style="padding: 16px; color: #ff6b6b;">failed to load leaderboard</div>';
+  });
+}
+
+function editLeaderboardEntry(uid, currentPlays, currentTime) {
+  const newPlays = prompt(`edit total plays for user (current: ${currentPlays}):`, currentPlays);
+  if (newPlays === null) return;
+  
+  const plays = parseInt(newPlays);
+  if (isNaN(plays) || plays < 0) {
+    alert('please enter a valid number');
+    return;
+  }
+  
+  const newTime = prompt(`edit total playtime in seconds (current: ${currentTime}):`, currentTime);
+  if (newTime === null) return;
+  
+  const time = parseInt(newTime);
+  if (isNaN(time) || time < 0) {
+    alert('please enter a valid number');
+    return;
+  }
+  
+  const db = firebase.database();
+  db.ref(`leaderboards/${uid}`).update({
+    totalPlays: plays,
+    totalPlayTime: time
+  }).then(() => {
+    alert('leaderboard entry updated!');
+    loadLeaderboardEntries();
+  }).catch(err => {
+    console.error('Error updating entry:', err);
+    alert('error updating entry');
+  });
+}
+
+function deleteLeaderboardEntry(uid, username) {
+  if (confirm(`are you sure you want to delete ${username} from the leaderboard?`)) {
+    const db = firebase.database();
+    db.ref(`leaderboards/${uid}`).remove()
+      .then(() => {
+        alert('leaderboard entry deleted!');
+        loadLeaderboardEntries();
+      })
+      .catch(err => {
+        console.error('Error deleting entry:', err);
+        alert('error deleting entry');
+      });
+  }
+}
+
 // Announcement Modal Functions
 function showAnnouncementModal() {
   document.getElementById('announcement-modal').style.display = 'flex';
@@ -655,6 +864,49 @@ async function createAnnouncement() {
   } else {
     alert('please fill in title and content');
   }
+}
+
+// Settings Modal Functions
+function showSettingsModal() {
+  document.getElementById('settings-modal').style.display = 'flex';
+  loadCurrentHeroText();
+}
+
+function closeSettingsModal() {
+  document.getElementById('settings-modal').style.display = 'none';
+  document.getElementById('hero-text-input').value = '';
+}
+
+function loadCurrentHeroText() {
+  const db = firebase.database();
+  db.ref('settings/heroText').once('value', snap => {
+    const text = snap.val();
+    if (text) {
+      document.getElementById('hero-text-input').value = text;
+    } else {
+      document.getElementById('hero-text-input').value = 'druskii is so gnarly -s';
+    }
+  });
+}
+
+function saveHeroText() {
+  const heroText = document.getElementById('hero-text-input').value.trim();
+  
+  if (!heroText) {
+    alert('hero text cannot be empty');
+    return;
+  }
+  
+  const db = firebase.database();
+  db.ref('settings/heroText').set(heroText)
+    .then(() => {
+      alert('hero text updated successfully!');
+      closeSettingsModal();
+    })
+    .catch(err => {
+      console.error('Error saving hero text:', err);
+      alert('error saving hero text');
+    });
 }
 </script>
 

@@ -34,6 +34,8 @@
     // Create banner
     const banner = document.createElement('div');
     banner.className = 'cmp-banner';
+    banner.setAttribute('role', 'region');
+    banner.setAttribute('aria-label', 'cookie consent');
     banner.innerHTML = `
       <div class="cmp-inner">
         <div class="cmp-text">
@@ -41,8 +43,8 @@
           see our <a href="privacy-policy.html">privacy policy</a>.
         </div>
         <div class="cmp-actions">
-          <button class="cmp-btn cmp-reject">reject</button>
-          <button class="cmp-btn cmp-accept">accept</button>
+          <button type="button" class="cmp-btn cmp-reject" aria-label="reject cookies">reject</button>
+          <button type="button" class="cmp-btn cmp-accept" aria-label="accept cookies">accept</button>
         </div>
       </div>
     `;

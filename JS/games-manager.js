@@ -87,15 +87,25 @@ class GamesManager {
 
   // Increment play count
   async incrementPlays(gameId) {
+    console.log('incrementPlays called with gameId:', gameId);
     const gameRef = gamesRef.child(gameId);
     const snapshot = await gameRef.once('value');
     const game = snapshot.val();
+    
+    console.log('Game found:', game?.name);
     
     if (game) {
       const currentPlays = Number(game.plays) || 0;
       const newPlays = currentPlays + 1;
       await gameRef.update({ plays: newPlays });
       console.log(`Updated ${game.name} plays: ${currentPlays} -> ${newPlays}`);
+      
+      // Track in user leaderboard if user is logged in
+      console.log('recordGamePlay function exists?', typeof recordGamePlay === 'function');
+      if (typeof recordGamePlay === 'function') {
+        console.log('Calling recordGamePlay with:', game.name);
+        recordGamePlay(game.name);
+      }
     }
   }
 

@@ -25,6 +25,7 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9261158347206771" crossorigin="anonymous"></script>
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="JS/firebase-config.js"></script>
 <script src="JS/games-manager.js"></script>
@@ -46,7 +47,7 @@
             </button>
             <a href="https://forms.gle/eRT37jLokfETBNUs6">request</a>
             <a href="#" id="changelog-btn">changelog</a>
-            <span id="last-updated">last updated: loading…</span>
+            <span id="last-updated" style="font-size: 0.75rem; color: var(--text-muted);">last updated: loading…</span>
         </div>
   </nav>
 </header>
@@ -68,13 +69,18 @@
 
   <div class="hero-section">
     <h1 class="title">druskii128</h1>
-        <p style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 0; font-weight: 400; max-width: 600px;">druskii is so gnarly -s</p>
+        <p id="hero-text" style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 0; font-weight: 400; max-width: 600px;">loading...</p>
         <div class="presence-indicator" id="presence-indicator" style="margin-top: 12px; display: flex; align-items: center; gap: 8px; color: var(--text-secondary);">
             <span class="presence-dot" aria-hidden="true" style="width: 10px; height: 10px; border-radius: 50%; background: var(--color-online); display: inline-block;"></span>
             <span class="presence-icon" aria-hidden="true">👤</span>
             <span id="online-count">0 online</span>
             <span id="ingame-count" style="margin-left: 8px; color: var(--color-in-game);">0 in game</span>
             <button id="online-info-btn" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.875rem; padding: 0 4px; margin-left: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; opacity: 0.6;" title="view other users">more</button>
+        </div>
+        <div class="presence-indicator" id="leaderboard-indicator" style="margin-top: 8px; display: flex; align-items: center; gap: 8px; color: var(--text-secondary);">
+            <span class="presence-icon" aria-hidden="true">🏆</span>
+            <span id="leaderboard-top">#1: loading...</span>
+            <button id="leaderboard-info-btn" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.875rem; padding: 0 4px; margin-left: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; opacity: 0.6;" title="view leaderboards">more</button>
         </div>
   </div>
 
@@ -86,6 +92,20 @@
     <div id="users-list" style="color: #999999; font-size: 0.875rem;">loading users...</div>
   </div>
 </div>
+
+<!-- Leaderboard Modal -->
+<div id="leaderboard-modal">
+  <div class="modal-content">
+    <button id="close-leaderboard-btn">✕</button>
+    <div class="modal-header-title">🏆 leaderboard</div>
+    <div id="leaderboard-list" style="color: #999999; font-size: 0.875rem;">loading leaderboard...</div>
+  </div>
+</div>
+
+  <h2 class="text-center">recently played</h2>
+  <div id="recently-played-container" class="flex-container" style="margin-bottom: 50px;">
+    <!-- Recently played games loaded from localStorage -->
+  </div>
 
   <h2 class="text-center">trending games</h2>
 
@@ -502,7 +522,7 @@
     <div id="papas-games-container" class="flex-container">
         <!-- Papa's games loaded from Firebase -->
     </div>
-</main>
+</div>
 
 <!-- Changelog Modal -->
 <div id="changelog-modal" class="modal">
@@ -518,6 +538,7 @@
     </div>
   </div>
 </div>
+</div>
 
 <div class="loading-overlay" id="loading-overlay"></div>
 <div class="loading-spinner" id="loading-spinner"></div>
@@ -531,6 +552,14 @@
 <script src="JS/changelog.js"></script>
 <script src="JS/presence.js"></script>
 <script src="JS/cmp.js"></script>
+<script src="JS/auth-prompt.js"></script>
+<script src="JS/recently-played.js"></script>
+<script src="JS/favorites.js"></script>
+<script src="JS/leaderboard.js"></script>
+<script src="JS/profile-menu.js"></script>
+<script src="JS/leaderboard-display.js"></script>
+<script src="JS/settings-display.js"></script>
+<script src="JS/iframe-dark-mode.js"></script>
 <script>
 // Fetch most recent commit and display in GMT-6
 (function(){
@@ -715,6 +744,11 @@ function renderTrendingGames(games) {
       // Prevent immediate navigation
       e.preventDefault();
       
+      // Track as recently played
+      if (typeof trackGamePlay === 'function') {
+        trackGamePlay(game.id, game.name, game.path, game.thumb);
+      }
+      
       // Show loading spinner
       const spinner = document.getElementById('loading-spinner');
       const overlay = document.getElementById('loading-overlay');
@@ -796,8 +830,41 @@ function renderAllGames(games) {
       <div class="game-tile">
         <img class="game-icon" src="${game.thumb}" alt="${game.name}" width="360" height="360">
         <h1 class="game-title">${game.name}</h1>
+        <button class="favorite-btn-hover" data-game-id="${game.id}" style="display: none;">☆</button>
       </div>
     `;
+    
+    // Add hover events for favorites button
+    const favBtn = gameLink.querySelector('.favorite-btn-hover');
+    gameLink.addEventListener('mouseenter', () => {
+      if (firebase.auth().currentUser) {
+        favBtn.style.display = 'block';
+        if (isFavorite(game.id)) {
+          favBtn.textContent = '★';
+          favBtn.classList.add('active');
+        } else {
+          favBtn.textContent = '☆';
+          favBtn.classList.remove('active');
+        }
+      }
+    });
+    gameLink.addEventListener('mouseleave', () => {
+      favBtn.style.display = 'none';
+    });
+    
+    // Favorite button click handler
+    favBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleFavorite(game.id);
+      if (isFavorite(game.id)) {
+        favBtn.textContent = '★';
+        favBtn.classList.add('active');
+      } else {
+        favBtn.textContent = '☆';
+        favBtn.classList.remove('active');
+      }
+    });
     
     container.appendChild(gameLink);
   });
@@ -856,8 +923,8 @@ function renderPapasGames(games) {
             <a href="about.html">about</a>
             <a href="https://forms.gle/eRT37jLokfETBNUs6" target="_blank" rel="noopener noreferrer">contact</a>
         </div>
-        <p class="footer-text">© 2024 druskii128. all rights reserved.</p>
-        <p class="footer-disclaimer">all games are property of their respective owners. this site is supported by advertising.</p>
+        <p class="footer-text">© 2025 silaspuma. all rights reserved.</p>
+        <p class="footer-disclaimer">all games are property of their respective owners. this site is supported by advertising :3</p>
     </div>
 </footer>
 

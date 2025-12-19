@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login / Sign Up</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: var(--bg-dark);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .auth-container {
+      background: var(--bg-card);
+      border: 1px solid var(--bg-elevated);
+      border-radius: 12px;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .auth-container h1 {
+      margin: 0 0 8px 0;
+      font-size: 1.75rem;
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+
+    .auth-container p {
+      margin: 0 0 32px 0;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--bg-elevated);
+      border-radius: 6px;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--bg-elevated);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 12px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--on-primary);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--bg-elevated);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--bg-modal-header);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      color: #ff6b6b;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      padding: 10px 12px;
+      background: rgba(255, 107, 107, 0.1);
+      border-radius: 6px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .toggle-form {
+      text-align: center;
+      margin-top: 20px;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .toggle-form button {
+      background: none;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: underline;
+    }
+
+    .toggle-form button:hover {
+      opacity: 0.8;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--primary);
+    }
+
+    @media (max-width: 480px) {
+      .auth-container {
+        padding: 24px;
+      }
+
+      .auth-container h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="JS/firebase-config.js"></script>
+  <script src="JS/themes.js"></script>
+  <script src="JS/theme-switcher.js"></script>
+
+  <div class="auth-container">
+    <a href="/" class="back-link">← back to games</a>
+    
+    <!-- Login Form -->
+    <div id="login-form">
+      <h1>welcome back</h1>
+      <p>log in to your account</p>
+      
+      <div class="error-message" id="login-error"></div>
+      
+      <div class="form-group">
+        <label for="login-email">email</label>
+        <input type="email" id="login-email" placeholder="your email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="login-password">password</label>
+        <input type="password" id="login-password" placeholder="your password" required>
+      </div>
+      
+      <button class="btn btn-primary" id="login-btn">log in</button>
+      
+      <div class="toggle-form">
+        don't have an account? <button onclick="toggleForm()">sign up</button>
+      </div>
+    </div>
+    
+    <!-- Sign Up Form -->
+    <div id="signup-form" style="display: none;">
+      <h1>create account</h1>
+      <p>join to unlock leaderboards, favorites & more</p>
+      
+      <div class="error-message" id="signup-error"></div>
+      
+      <div class="form-group">
+        <label for="signup-email">email</label>
+        <input type="email" id="signup-email" placeholder="your email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="signup-password">password</label>
+        <input type="password" id="signup-password" placeholder="at least 6 characters" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="signup-confirm">confirm password</label>
+        <input type="password" id="signup-confirm" placeholder="confirm your password" required>
+      </div>
+      
+      <button class="btn btn-primary" id="signup-btn">create account</button>
+      
+      <div class="toggle-form">
+        already have an account? <button onclick="toggleForm()">log in</button>
+      </div>
+    </div>
+
+    <!-- Username Form -->
+    <div id="username-form" style="display: none;">
+  </div>
+
+  <script>
+    function toggleForm() {
+      const loginForm = document.getElementById('login-form');
+      const signupForm = document.getElementById('signup-form');
+      const loginError = document.getElementById('login-error');
+      const signupError = document.getElementById('signup-error');
+      
+      loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
+      signupForm.style.display = signupForm.style.display === 'none' ? 'block' : 'none';
+      
+      loginError.classList.remove('show');
+      signupError.classList.remove('show');
+    }
+
+    function showError(elementId, message) {
+      const errorEl = document.getElementById(elementId);
+      errorEl.textContent = message;
+      errorEl.classList.add('show');
+    }
+
+    function clearError(elementId) {
+      const errorEl = document.getElementById(elementId);
+      errorEl.classList.remove('show');
+    }
+
+    document.getElementById('login-btn').addEventListener('click', async () => {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      
+      if (!email || !password) {
+        showError('login-error', 'please fill in all fields');
+        return;
+      }
+      
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.textContent = 'logging in...';
+      
+      try {
+        clearError('login-error');
+        await firebase.auth().signInWithEmailAndPassword(email, password);
+        window.location.href = '/';
+      } catch (error) {
+        let message = 'login failed';
+        if (error.code === 'auth/user-not-found') {
+          message = 'no account found with that email';
+        } else if (error.code === 'auth/wrong-password') {
+          message = 'incorrect password';
+        } else if (error.code === 'auth/invalid-email') {
+          message = 'invalid email address';
+        }
+        showError('login-error', message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'log in';
+      }
+    });
+
+    document.getElementById('signup-btn').addEventListener('click', async () => {
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+      const confirm = document.getElementById('signup-confirm').value;
+      
+      if (!email || !password || !confirm) {
+        showError('signup-error', 'please fill in all fields');
+        return;
+      }
+      
+      if (password !== confirm) {
+        showError('signup-error', 'passwords do not match');
+        return;
+      }
+      
+      if (password.length < 6) {
+        showError('signup-error', 'password must be at least 6 characters');
+        return;
+      }
+      
+      const btn = document.getElementById('signup-btn');
+      btn.disabled = true;
+      btn.textContent = 'creating account...';
+      
+      try {
+        clearError('signup-error');
+        const result = await firebase.auth().createUserWithEmailAndPassword(email, password);
+        
+        // Send verification email
+        await result.user.sendEmailVerification({
+          url: window.location.origin + '/?verified=true'
+        });
+        
+        // Initialize leaderboard entry
+        const db = firebase.database();
+        await db.ref(`leaderboards/${result.user.uid}`).set({
+          username: email.split('@')[0],
+          email: email,
+          totalPlays: 0,
+          totalPlayTime: 0,
+          usernameChanged: false,
+          updatedAt: Date.now()
+        });
+        
+        window.location.href = '/';
+      } catch (error) {
+        let message = 'sign up failed';
+        if (error.code === 'auth/email-already-in-use') {
+          message = 'email already in use';
+        } else if (error.code === 'auth/invalid-email') {
+          message = 'invalid email address';
+        } else if (error.code === 'auth/weak-password') {
+          message = 'password is too weak';
+        }
+        showError('signup-error', message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'create account';
+      }
+    });
+    document.getElementById('username-btn').addEventListener('click', async () => {
+      const username = document.getElementById('username-input').value.trim();
+      const userId = sessionStorage.getItem('newUserId');
+      
+      if (!username) {
+        showError('username-error', 'please enter a username');
+        return;
+      }
+      
+      if (username.length < 3) {
+        showError('username-error', 'username must be at least 3 characters');
+        return;
+      }
+      
+      if (username.length > 20) {
+        showError('username-error', 'username must be 20 characters or less');
+        return;
+      }
+      
+      if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+        showError('username-error', 'username can only contain letters, numbers, _, and -');
+        return;
+      }
+      
+      const btn = document.getElementById('username-btn');
+      btn.disabled = true;
+      btn.textContent = 'saving username...';
+      
+      try {
+        clearError('username-error');
+        const db = firebase.database();
+        await db.ref(`leaderboards/${userId}`).update({
+          username: username
+        });
+        
+        sessionStorage.removeItem('newUserId');
+        window.location.href = '/';
+      } catch (error) {
+        showError('username-error', 'failed to save username');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'continue';
+      }
+    });
+
+    // Check if already logged in
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = '/';
+      }
+    });
+
+    // Enter key support
+    document.getElementById('login-password').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') document.getElementById('login-btn').click();
+    });
+
+    document.getElementById('signup-confirm').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') document.getElementById('signup-btn').click();
+    });
+  </script>
+</body>
+</html>
