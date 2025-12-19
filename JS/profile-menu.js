@@ -15,7 +15,7 @@ function initProfileMenu() {
       
       // Load user data from leaderboard
       const db = firebase.database();
-      db.ref(`leaderboards/${user.uid}`).on('value', snap => {
+      db.ref(DB_PATHS.leaderboard(user.uid)).on('value', snap => {
         currentUserData = snap.val() || {};
         updateProfileMenu();
       });
@@ -181,24 +181,16 @@ function openEditUsernameDialog() {
     return;
   }
   
-  const newUsername = prompt('enter your new username (3-20 characters):', currentUserData.username);
+  const newUsername = prompt(`enter your new username (${USERNAME_VALIDATION.MIN_LENGTH}-${USERNAME_VALIDATION.MAX_LENGTH} characters):`, currentUserData.username);
   
   if (!newUsername) return;
   
   const trimmed = newUsername.trim();
   
-  if (trimmed.length < 3) {
-    alert('username must be at least 3 characters');
-    return;
-  }
-  
-  if (trimmed.length > 20) {
-    alert('username must be 20 characters or less');
-    return;
-  }
-  
-  if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
-    alert('username can only contain letters, numbers, _, and -');
+  // Validate using shared validation utility
+  const validationError = USERNAME_VALIDATION.validate(trimmed);
+  if (validationError) {
+    alert(validationError);
     return;
   }
   
@@ -210,7 +202,7 @@ function updateUsername(newUsername) {
   if (!user) return;
   
   const db = firebase.database();
-  db.ref(`leaderboards/${user.uid}`).update({
+  db.ref(DB_PATHS.leaderboard(user.uid)).update({
     username: newUsername,
     usernameChanged: true,
     updatedAt: Date.now()

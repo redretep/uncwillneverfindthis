@@ -23,7 +23,7 @@ function initUsernamePrompt() {
         
         // Load user data to check if they already have a custom username
         const db = firebase.database();
-        db.ref(`leaderboards/${user.uid}`).once('value', snap => {
+        db.ref(DB_PATHS.leaderboard(user.uid)).once('value', snap => {
           const userData = snap.val();
           
           // Only show if they haven't changed their username yet
@@ -72,10 +72,10 @@ function showUsernamePrompt(user, userData) {
           id="username-prompt-input" 
           class="username-prompt-input"
           placeholder="enter new username"
-          maxlength="20"
+          maxlength="${USERNAME_VALIDATION.MAX_LENGTH}"
           value="${currentUsername}"
         />
-        <small class="username-prompt-hint">3-20 characters, letters, numbers, _ and - only</small>
+        <small class="username-prompt-hint">${USERNAME_VALIDATION.MIN_LENGTH}-${USERNAME_VALIDATION.MAX_LENGTH} characters, letters, numbers, _ and - only</small>
       </div>
       <div class="username-prompt-actions">
         <button class="username-prompt-button secondary" onclick="dismissUsernamePrompt()">
@@ -124,24 +124,10 @@ function saveUsernameFromPrompt() {
 
   const username = input.value.trim();
 
-  // Validate username
-  if (!username) {
-    showUsernameError('please enter a username');
-    return;
-  }
-
-  if (username.length < 3) {
-    showUsernameError('username must be at least 3 characters');
-    return;
-  }
-
-  if (username.length > 20) {
-    showUsernameError('username must be 20 characters or less');
-    return;
-  }
-
-  if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-    showUsernameError('username can only contain letters, numbers, _ and -');
+  // Validate username using shared validation utility
+  const validationError = USERNAME_VALIDATION.validate(username);
+  if (validationError) {
+    showUsernameError(validationError);
     return;
   }
 
@@ -160,7 +146,7 @@ function saveUsernameFromPrompt() {
     saveButton.textContent = 'saving...';
   }
 
-  db.ref(`leaderboards/${user.uid}`).update({
+  db.ref(DB_PATHS.leaderboard(user.uid)).update({
     username: username,
     usernameChanged: true,
     updatedAt: Date.now()
