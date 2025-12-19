@@ -6,19 +6,18 @@
     const currentPage = window.location.pathname;
     const isGamePage = /projects\/.+\/(index\.html|.+\.html)$/.test(currentPage) || /subway-surfers\.html$/.test(currentPage);
 
-    // Get local IP via WebRTC (best effort for private IP)
-    let localIP = 'unknown';
-    try {
-      const pc = new RTCPeerConnection({ iceServers: [] });
-      pc.createDataChannel('');
-      pc.createOffer().then(offer => pc.setLocalDescription(offer));
-      pc.onicecandidate = (ice) => {
-        if (!ice || !ice.candidate) return;
-        const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
-        const match = ice.candidate.candidate.match(ipRegex);
-        if (match) localIP = match[1];
-      };
-    } catch (e) {}
+    // Generate a unique session ID for this browser session
+    let sessionId = sessionStorage.getItem('presence-session-id');
+    if (!sessionId) {
+      // Use crypto.randomUUID if available, otherwise fallback to timestamp + random
+      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        sessionId = 'session_' + crypto.randomUUID();
+      } else {
+        // Fallback: timestamp + 9 random alphanumeric characters
+        sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
+      }
+      sessionStorage.setItem('presence-session-id', sessionId);
+    }
 
     // Extract game ID from path for icon display
     let gameId = null;
@@ -38,15 +37,13 @@
       }
     }
 
-    // Write session with IP and game info
-    const sessionRef = db.ref('presence/sessions').push();
-    const currentSessionId = sessionRef.key;
+    // Write session with session ID and game info
+    const sessionRef = db.ref(`presence/sessions/${sessionId}`);
     const sessionData = {
       path: currentPage,
       isGame: isActuallyInGame,
       gameId: gameId,
       displayLocation: displayLocation,
-      ip: localIP,
       ua: navigator.userAgent,
       ts: Date.now()
     };
@@ -80,29 +77,10 @@
           .filter(([key, s]) => s && (now - (s.ts || 0)) < 30000)
           .map(([key, s]) => s);
         
-        // Deduplicate by IP address to count unique users
-        const uniqueIPs = new Set();
-        const uniqueInGameIPs = new Set();
-        let unknownIPCount = 0;
-        let unknownIPInGameCount = 0;
+        // Count all valid sessions (no deduplication)
+        const totalOnline = validSessions.length;
+        const ingame = validSessions.filter(s => s.isGame === true).length;
         
-        validSessions.forEach(s => {
-          if (s.ip && s.ip !== 'unknown') {
-            uniqueIPs.add(s.ip);
-            if (s.isGame === true) {
-              uniqueInGameIPs.add(s.ip);
-            }
-          } else {
-            // Count each session with unknown IP separately as we can't deduplicate them
-            unknownIPCount++;
-            if (s.isGame === true) {
-              unknownIPInGameCount++;
-            }
-          }
-        });
-        
-        const totalOnline = uniqueIPs.size + unknownIPCount;
-        const ingame = uniqueInGameIPs.size + unknownIPInGameCount;
         console.log('Presence update - Total:', totalOnline, 'In Game:', ingame);
         if (onlineCountEl) onlineCountEl.textContent = totalOnline + ' online';
         if (ingameCountEl) ingameCountEl.textContent = ingame + ' in game';
@@ -155,7 +133,7 @@
           const otherSessions = Object.entries(sessions)
             .filter(([key, user]) => {
               // Exclude current session, stale sessions, and null entries
-              return key !== currentSessionId 
+              return key !== sessionId 
                 && user 
                 && (now - (user.ts || 0)) < 30000;
             })

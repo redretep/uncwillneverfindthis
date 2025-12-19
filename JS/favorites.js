@@ -2,15 +2,6 @@
 const FAVORITES_KEY = 'favoriteGames';
 
 function toggleFavorite(gameId) {
-  // Check if user is logged in
-  if (typeof firebase !== 'undefined' && firebase.auth) {
-    const user = firebase.auth().currentUser;
-    if (!user) {
-      alert('please log in to add favorites');
-      return;
-    }
-  }
-  
   let favorites = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
   const index = favorites.indexOf(gameId);
   

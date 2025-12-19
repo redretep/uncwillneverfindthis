@@ -541,12 +541,8 @@
 <script src="JS/changelog.js"></script>
 <script src="JS/presence.js"></script>
 <script src="JS/cmp.js"></script>
-<script src="JS/username-validation.js"></script>
-<script src="JS/auth-prompt.js"></script>
-<script src="JS/username-prompt.js"></script>
 <script src="JS/recently-played.js"></script>
 <script src="JS/favorites.js"></script>
-<script src="JS/profile-menu.js"></script>
 <script src="JS/settings-display.js"></script>
 <script src="JS/iframe-dark-mode.js"></script>
 <script>
@@ -826,15 +822,13 @@ function renderAllGames(games) {
     // Add hover events for favorites button
     const favBtn = gameLink.querySelector('.favorite-btn-hover');
     gameLink.addEventListener('mouseenter', () => {
-      if (firebase.auth().currentUser) {
-        favBtn.style.display = 'block';
-        if (isFavorite(game.id)) {
-          favBtn.textContent = '★';
-          favBtn.classList.add('active');
-        } else {
-          favBtn.textContent = '☆';
-          favBtn.classList.remove('active');
-        }
+      favBtn.style.display = 'block';
+      if (isFavorite(game.id)) {
+        favBtn.textContent = '★';
+        favBtn.classList.add('active');
+      } else {
+        favBtn.textContent = '☆';
+        favBtn.classList.remove('active');
       }
     });
     gameLink.addEventListener('mouseleave', () => {
