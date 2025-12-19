@@ -334,6 +334,9 @@
           updatedAt: Date.now()
         });
         
+        // Set flag to show username prompt on home page
+        sessionStorage.setItem('new-user-signup', 'true');
+        
         window.location.href = '/';
       } catch (error) {
         let message = 'sign up failed';
