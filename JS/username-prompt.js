@@ -53,7 +53,7 @@ function showUsernamePrompt(user, userData) {
   popup.className = 'username-prompt-popup';
   popup.innerHTML = `
     <div class="username-prompt-content">
-      <button class="username-prompt-close" onclick="dismissUsernamePrompt()" title="close">✕</button>
+      <button class="username-prompt-close" title="close">✕</button>
       <div class="username-prompt-header">
         <span class="username-prompt-icon">👋</span>
         <h3 style="margin: 0; font-weight: 700; color: var(--text-primary);">welcome!</h3>
@@ -78,10 +78,10 @@ function showUsernamePrompt(user, userData) {
         <small class="username-prompt-hint">${USERNAME_VALIDATION.MIN_LENGTH}-${USERNAME_VALIDATION.MAX_LENGTH} characters, letters, numbers, _ and - only</small>
       </div>
       <div class="username-prompt-actions">
-        <button class="username-prompt-button secondary" onclick="dismissUsernamePrompt()">
+        <button class="username-prompt-button secondary" data-action="skip">
           skip for now
         </button>
-        <button class="username-prompt-button primary" onclick="saveUsernameFromPrompt()">
+        <button class="username-prompt-button primary" data-action="save">
           save username
         </button>
       </div>
@@ -89,6 +89,23 @@ function showUsernamePrompt(user, userData) {
   `;
 
   document.body.appendChild(popup);
+  
+  // Attach event listeners
+  const closeButton = popup.querySelector('.username-prompt-close');
+  const skipButton = popup.querySelector('[data-action="skip"]');
+  const saveButton = popup.querySelector('[data-action="save"]');
+  
+  if (closeButton) {
+    closeButton.addEventListener('click', dismissUsernamePrompt);
+  }
+  
+  if (skipButton) {
+    skipButton.addEventListener('click', dismissUsernamePrompt);
+  }
+  
+  if (saveButton) {
+    saveButton.addEventListener('click', saveUsernameFromPrompt);
+  }
 
   // Trigger animation
   setTimeout(() => {

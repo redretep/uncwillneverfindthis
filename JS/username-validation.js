@@ -37,15 +37,18 @@ const USERNAME_VALIDATION = {
 
 // Database path utilities
 const DB_PATHS = {
+  // Dynamic paths (functions that take parameters)
   leaderboard: function(uid) {
     return `leaderboards/${uid}`;
   },
   
+  presence: function(uid) {
+    return `presence/${uid}`;
+  },
+  
+  // Static paths (strings for paths without parameters)
   games: 'games',
   trending: 'trending',
   announcement: 'announcement',
-  settings: 'settings',
-  presence: function(uid) {
-    return `presence/${uid}`;
-  }
+  settings: 'settings'
 };
