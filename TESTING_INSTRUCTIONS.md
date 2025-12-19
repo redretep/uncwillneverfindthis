@@ -6,6 +6,7 @@ This document provides step-by-step instructions for testing the fixes implement
 
 1. **Admin cannot update announcement/hero text** - Firebase rules need to be configured
 2. **New users need username prompt** - Show a one-time popup after signup to set a username
+3. **Online counter not updating** - Firebase rules prevented writes to `presence/sessions`
 
 ## Prerequisites
 
@@ -184,12 +185,42 @@ Before testing, you **MUST** apply the Firebase Realtime Database rules. See `FI
 
 ---
 
+### Test 10: Online Counter Updates
+
+**Objective**: Verify the online player counter updates in real-time
+
+**Steps**:
+1. Open `https://druskii128.github.io/` in a browser (Browser A)
+2. Log in with any authenticated user account
+3. Note the "online" and "in game" counters in the top section
+4. Open `https://druskii128.github.io/` in a different browser or incognito window (Browser B)
+5. Log in with a different authenticated user account
+6. Observe both counters:
+   - "X online" should increase by 1 in both browsers
+7. In Browser B, navigate to a game (e.g., `/projects/subway-surfers-san-francisco/`)
+8. Observe the counters in Browser A:
+   - "X online" should remain the same or increase
+   - "X in game" should increase by 1
+9. Close Browser B
+10. Wait ~30 seconds and observe Browser A:
+    - Both counters should decrease to reflect the closed session
+
+**Expected Result**: ✅ Online counter updates correctly when users join/leave and enter games
+
+**If Test Fails**:
+- Check browser console for Firebase permission errors like "PERMISSION_DENIED"
+- Verify Firebase rules include the `presence/sessions` write rule for authenticated users
+- Ensure you're logged in (not anonymous)
+
+---
+
 ## Known Issues / Notes
 
 1. **Firebase Rules**: The fixes will NOT work until Firebase Realtime Database rules are updated via the Firebase Console
-2. **Local Storage**: Username prompt uses localStorage to track if it was shown. Clearing browser data will show it again for testing
-3. **Session Storage**: The "new user signup" flag uses sessionStorage and clears after the prompt is shown
-4. **Admin Email**: Currently hardcoded as `silasputerbaugh1@gmail.com` in both client and Firebase rules
+2. **Online Counter Fix**: The previous Firebase rules prevented the online counter from updating because the write rule structure didn't match how the presence tracking system writes data
+3. **Local Storage**: Username prompt uses localStorage to track if it was shown. Clearing browser data will show it again for testing
+4. **Session Storage**: The "new user signup" flag uses sessionStorage and clears after the prompt is shown
+5. **Admin Email**: Currently hardcoded as `silasputerbaugh1@gmail.com` in both client and Firebase rules
 
 ## Rollback Instructions
 
