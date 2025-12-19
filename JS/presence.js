@@ -9,7 +9,7 @@
     // Generate a unique session ID for this browser session
     let sessionId = sessionStorage.getItem('presence-session-id');
     if (!sessionId) {
-      sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
       sessionStorage.setItem('presence-session-id', sessionId);
     }
 
